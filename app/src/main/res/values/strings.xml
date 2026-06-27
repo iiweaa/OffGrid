@@ -9,8 +9,37 @@
     <string name="notification_content">正在通过 Wi-Fi Direct 进行直连语音</string>
     <string name="notification_stop">停止</string>
 
+    <string name="settings_title">Settings</string>
+    <string name="settings_identity">Identity</string>
+    <string name="settings_user_id">User ID</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_connection">Connection</string>
+    <string name="settings_developer_tools">Developer tools</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_licenses">Licenses</string>
+    <string name="about_licenses">Opus codec by Xiph.Org; Material Design Icons</string>
+    <string name="about_description">OffGrid is an experimental mesh voice communicator. It does not require internet or cellular connectivity.</string>
+
     <string name="screen_home">Home</string>
-    <string name="screen_call">Call</string>
+    <string name="screen_call">Direct Call</string>
+    <string name="call_ready">Ready</string>
+    <string name="call_voice_running">Voice service running</string>
+    <string name="call_peer">Peer: %1$s</string>
+    <string name="call_discovering">discovering…</string>
+    <string name="call_start">Start Call</string>
+    <string name="call_end">End Call</string>
+    <string name="call_mute">Mute</string>
+    <string name="call_unmute">Unmute</string>
+    <string name="call_error">Error: %1$s</string>
+    <string name="call_location">Location</string>
+    <string name="call_my_location">My: %1$.5f, %2$.5f (±%3$.1fm)</string>
+    <string name="call_waiting_gps">Waiting for GPS fix…</string>
+    <string name="call_peer_locations">Peer locations received: %1$d</string>
+    <string name="call_neighbors">Neighbors (%1$d)</string>
+    <string name="call_no_neighbors">No neighbors discovered yet</string>
+    <string name="call_neighbor_item">%1$s @ %2$s (seen %3$ds ago)</string>
 
     <!-- Navigation -->
     <string name="navigate_back">返回</string>
@@ -85,4 +114,54 @@
     <string name="wifi_direct_group_info">Group info: SSID=%1$s, pass=%2$s, isGO=%3$b</string>
     <string name="wifi_direct_probe_started">Probing AP-STA concurrency…</string>
     <string name="wifi_direct_probe_result">Concurrency probe result: %1$s (source=%2$s)</string>
+
+    <!-- Network / Connection -->
+    <string name="network_role">Network role</string>
+    <string name="network_role_auto">Auto</string>
+    <string name="network_role_group_owner">Group Owner</string>
+    <string name="network_role_client">Client</string>
+    <string name="network_go_config">Group Owner config</string>
+    <string name="network_group_name">Group name (optional)</string>
+    <string name="network_passphrase">Passphrase (optional)</string>
+    <string name="network_go_config_hint">Android may ignore custom values and assign them automatically.</string>
+    <string name="network_concurrency_hint">Current device does not support Wi-Fi Direct AP-STA concurrency. Only one phone can act as Group Owner.</string>
+    <string name="network_status">Network status</string>
+    <string name="network_status_idle">Idle</string>
+    <string name="network_status_connecting">Connecting…</string>
+    <string name="network_status_group_created">Group created, waiting for peer</string>
+    <string name="network_status_connected">Connected</string>
+    <string name="network_status_failed">Failed</string>
+    <string name="network_ssid_label">SSID: %1$s</string>
+    <string name="network_passphrase_label">Passphrase: %1$s</string>
+    <string name="network_clients_label">Clients: %1$d</string>
+    <string name="network_troubleshooting">Troubleshooting</string>
+
+    <string name="network_checking_permissions">Checking permissions…</string>
+    <string name="network_checking_p2p">Checking Wi-Fi Direct…</string>
+    <string name="network_creating_group">Creating group…</string>
+    <string name="network_waiting_group_info">Waiting for group info…</string>
+    <string name="network_waiting_client">Waiting for peer to join…</string>
+    <string name="network_scanning">Scanning for Group Owner…</string>
+    <string name="network_scanning_auto">Scanning, will create group if no owner found…</string>
+    <string name="network_connecting_to">Connecting to %1$s…</string>
+    <string name="network_waiting_connection">Waiting for connection…</string>
+
+    <string name="network_error_permission">Permission denied</string>
+    <string name="network_hint_permission">Location and Nearby devices permissions are required to discover peers. Please grant them in system settings.</string>
+    <string name="network_error_p2p_disabled">Wi-Fi Direct disabled</string>
+    <string name="network_hint_p2p_disabled">Please enable Wi-Fi Direct in system settings.</string>
+    <string name="network_error_create_group">Failed to create group</string>
+    <string name="network_hint_create_group">Try switching to Client mode and connect to the other phone.</string>
+    <string name="network_error_group_timeout">Group creation timed out</string>
+    <string name="network_hint_group_timeout">Check that Wi-Fi Direct is enabled and try again.</string>
+    <string name="network_error_no_go">No Group Owner found</string>
+    <string name="network_hint_no_go">Make sure the other phone has selected "Group Owner" and started the call.</string>
+    <string name="network_error_connect">Failed to connect</string>
+    <string name="network_hint_connect">Check that the other phone is still in Group Owner mode and within range.</string>
+    <string name="network_error_connection_timeout">Connection timed out</string>
+    <string name="network_hint_connection_timeout">Move closer and ensure only one device is acting as Group Owner.</string>
+    <string name="network_error_unsupported_concurrency">AP-STA concurrency not supported</string>
+    <string name="network_hint_unsupported_concurrency">This device cannot act as Group Owner and Client at the same time. Use one Group Owner and one Client.</string>
+    <string name="network_error_unexpected">Unexpected error: %1$s</string>
+    <string name="network_hint_unexpected">Please try again or switch to manual role selection.</string>
 </resources>

@@ -25,8 +25,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.offgrid.app.R
+import com.offgrid.app.link.wifidirect.GroupInfo
+import com.offgrid.app.link.wifidirect.NetworkConnectionState
 import com.offgrid.app.link.location.Location
 import com.offgrid.app.link.neighbor.Neighbor
 
@@ -35,7 +39,8 @@ fun CallScreen(
     viewModel: CallViewModel,
     modifier: Modifier = Modifier
 ) {
-    val state by viewModel.voiceState.collectAsStateWithLifecycle()
+    val voiceState by viewModel.voiceState.collectAsStateWithLifecycle()
+    val networkState by viewModel.networkState.collectAsStateWithLifecycle()
 
     val permissions = mutableListOf(
         Manifest.permission.RECORD_AUDIO,
@@ -68,55 +73,139 @@ fun CallScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
         ) {
             Text(
-                text = "Direct Call",
+                text = stringResource(R.string.screen_call),
                 style = MaterialTheme.typography.headlineMedium
             )
             Text(
-                text = if (state.isRunning) "Voice service running" else "Ready",
+                text = if (voiceState.isRunning) stringResource(R.string.call_voice_running) else stringResource(R.string.call_ready),
                 style = MaterialTheme.typography.bodyLarge
             )
             Text(
-                text = "Peer: ${state.peer?.hostAddress ?: "discovering..."}",
+                text = stringResource(R.string.call_peer, voiceState.peer?.hostAddress ?: stringResource(R.string.call_discovering)),
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            NeighborListCard(state.neighbors)
-            LocationStatusCard(state.myLocation, state.peerLocations.size)
+            NetworkStatusCard(networkState)
+            NeighborListCard(voiceState.neighbors)
+            LocationStatusCard(voiceState.myLocation, voiceState.peerLocations.size)
 
-            state.lastError?.let {
+            voiceState.lastError?.let {
                 Text(
-                    text = "Error: $it",
+                    text = stringResource(R.string.call_error, it),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
             Button(
                 onClick = {
-                    if (state.isRunning) {
+                    if (voiceState.isRunning) {
                         viewModel.stopCall()
                     } else {
                         permissionLauncher.launch(permissions.toTypedArray())
                     }
                 }
             ) {
-                Text(if (state.isRunning) "End Call" else "Start Call")
+                Text(if (voiceState.isRunning) stringResource(R.string.call_end) else stringResource(R.string.call_start))
             }
 
-            if (state.isRunning) {
+            if (voiceState.isRunning) {
                 Button(
                     onClick = { viewModel.toggleMute() }
                 ) {
                     Icon(
-                        imageVector = if (state.isMuted) Icons.Default.MicOff else Icons.Default.Mic,
-                        contentDescription = if (state.isMuted) "Unmute" else "Mute"
+                        imageVector = if (voiceState.isMuted) Icons.Default.MicOff else Icons.Default.Mic,
+                        contentDescription = if (voiceState.isMuted) stringResource(R.string.call_unmute) else stringResource(R.string.call_mute)
                     )
                     Text(
-                        text = if (state.isMuted) " Unmute" else " Mute",
+                        text = if (voiceState.isMuted) stringResource(R.string.call_unmute) else stringResource(R.string.call_mute),
                         modifier = Modifier.padding(start = 8.dp)
                     )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun NetworkStatusCard(state: NetworkConnectionState) {
+    val (title, color) = when (state) {
+        is NetworkConnectionState.Idle -> stringResource(R.string.network_status_idle) to MaterialTheme.colorScheme.onSurfaceVariant
+        is NetworkConnectionState.Connecting -> stringResource(R.string.network_status_connecting) to MaterialTheme.colorScheme.secondary
+        is NetworkConnectionState.GroupCreated -> stringResource(R.string.network_status_group_created) to MaterialTheme.colorScheme.secondary
+        is NetworkConnectionState.Connected -> stringResource(R.string.network_status_connected) to MaterialTheme.colorScheme.primary
+        is NetworkConnectionState.Failed -> stringResource(R.string.network_status_failed) to MaterialTheme.colorScheme.error
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.network_status),
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = color
+            )
+            when (state) {
+                is NetworkConnectionState.Connecting -> {
+                    Text(
+                        text = state.message,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                is NetworkConnectionState.GroupCreated -> {
+                    GroupInfoRows(state.info)
+                }
+                is NetworkConnectionState.Connected -> {
+                    GroupInfoRows(state.info)
+                }
+                is NetworkConnectionState.Failed -> {
+                    Text(
+                        text = state.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Text(
+                        text = state.hint,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                else -> { /* no-op */ }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GroupInfoRows(info: GroupInfo) {
+    Text(
+        text = stringResource(R.string.network_ssid_label, info.networkName),
+        style = MaterialTheme.typography.bodyMedium
+    )
+    info.passphrase?.let {
+        Text(
+            text = stringResource(R.string.network_passphrase_label, it),
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+    if (info.isGroupOwner) {
+        Text(
+            text = stringResource(R.string.network_clients_label, info.clientCount),
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
 
@@ -135,12 +224,13 @@ private fun LocationStatusCard(myLocation: Location?, peerCount: Int) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "Location",
+                text = stringResource(R.string.call_location),
                 style = MaterialTheme.typography.titleMedium
             )
             if (myLocation != null) {
                 Text(
-                    text = "My: %.5f, %.5f (±%.1fm)".format(
+                    text = stringResource(
+                        R.string.call_my_location,
                         myLocation.latitude,
                         myLocation.longitude,
                         myLocation.accuracy
@@ -149,12 +239,12 @@ private fun LocationStatusCard(myLocation: Location?, peerCount: Int) {
                 )
             } else {
                 Text(
-                    text = "Waiting for GPS fix...",
+                    text = stringResource(R.string.call_waiting_gps),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
             Text(
-                text = "Peer locations received: $peerCount",
+                text = stringResource(R.string.call_peer_locations, peerCount),
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -176,20 +266,24 @@ private fun NeighborListCard(neighbors: List<Neighbor>) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = "Neighbors (${neighbors.size})",
+                text = stringResource(R.string.call_neighbors, neighbors.size),
                 style = MaterialTheme.typography.titleMedium
             )
             if (neighbors.isEmpty()) {
                 Text(
-                    text = "No neighbors discovered yet",
+                    text = stringResource(R.string.call_no_neighbors),
                     style = MaterialTheme.typography.bodyMedium
                 )
             } else {
                 neighbors.forEach { neighbor ->
                     val ageSeconds = (System.currentTimeMillis() - neighbor.lastSeenMs) / 1000
                     Text(
-                        text = "${neighbor.displayName()} @ ${neighbor.address.hostAddress} " +
-                            "(seen ${ageSeconds}s ago)",
+                        text = stringResource(
+                            R.string.call_neighbor_item,
+                            neighbor.displayName(),
+                            neighbor.address.hostAddress ?: "-",
+                            ageSeconds
+                        ),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
