@@ -144,6 +144,7 @@
 | M4-T2 | 实现音频路由管理（有线/蓝牙耳机自动切换） | Android Dev | 5d | M2-T3 | 耳机插拔/蓝牙连接自动切换 |
 | M4-T3 | 实现蓝牙耳机按键控制（静音/挂断） | Android Dev | 3d | M4-T2 | 按键响应正确 |
 | M4-T4 | 完成 UI/UX 主页面、方位页、设置页、首次引导 | Designer / Android Dev | 8d | **M3.5-T6** | UI 设计稿实现，首次引导完整 |
+| M4-T4-UI | 重构 Wi-Fi Direct Test 页面（简洁化、信息分层、交互优化） | Android Dev / Designer | 3d | M4-T4, M2-T4 | 页面符合 DESIGN_SYSTEM.md；状态卡、操作区、设备列表、日志分区清晰；日志可折叠 |
 | M4-T5 | 实现手动网络配置入口与故障排查提示 | Android Dev | 4d | M3-T3 | 用户可手动选择 GO/Client 角色 |
 | M4-T6 | 实现省电模式（降低位置/语音码率） | Android Dev | 4d | M4-T1 | 省电模式每小时耗电下降 ≥ 20% |
 | M4-T7 | 完善 BUILD.md、API 文档、开发者文档 | PM / Android Dev | 5d | - | 新贡献者可按文档独立构建 |

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">OffGrid</string>
-    <string name="title_wifi_direct_test">Wi-Fi Direct Test</string>
+    <string name="title_wifi_direct_test">Direct Connection Test</string>
     <string name="title_opus_latency_test">Opus Latency Test</string>
 
     <string name="notification_channel_name">OffGrid Voice</string>
@@ -11,4 +11,78 @@
 
     <string name="screen_home">Home</string>
     <string name="screen_call">Call</string>
+
+    <!-- Navigation -->
+    <string name="navigate_back">返回</string>
+
+    <!-- Wi-Fi Direct Test -->
+    <string name="wifi_direct_status">Status</string>
+    <string name="wifi_direct_actions">Actions</string>
+    <string name="wifi_direct_group_info_title">Group Info</string>
+    <string name="wifi_direct_devices">Devices (%1$d)</string>
+    <string name="wifi_direct_logs">Logs</string>
+    <string name="wifi_direct_logs_count">%1$d entries</string>
+    <string name="wifi_direct_expand_logs">展开日志</string>
+    <string name="wifi_direct_collapse_logs">收起日志</string>
+    <string name="wifi_direct_no_logs">暂无日志</string>
+
+    <string name="wifi_direct_p2p">Wi-Fi Direct</string>
+    <string name="wifi_direct_group">Group</string>
+    <string name="wifi_direct_multihop">Multi-hop</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+    <string name="wifi_direct_group_idle">Idle</string>
+    <string name="wifi_direct_group_owner">Group Owner</string>
+    <string name="wifi_direct_group_client">Client</string>
+
+    <string name="wifi_direct_create_group">Create Group</string>
+    <string name="wifi_direct_creating_group">Creating…</string>
+    <string name="wifi_direct_remove_group">Remove Group</string>
+    <string name="wifi_direct_removing_group">Removing…</string>
+    <string name="wifi_direct_discover">Discover</string>
+    <string name="wifi_direct_scanning">Scanning…</string>
+    <string name="wifi_direct_list_peers">List Peers</string>
+    <string name="wifi_direct_probe_concurrency">Probe AP-STA concurrency</string>
+    <string name="wifi_direct_probe_hint">需先作为 Client 加入 Group 才能探测并发能力</string>
+
+    <string name="wifi_direct_ssid">SSID</string>
+    <string name="wifi_direct_passphrase">Passphrase</string>
+    <string name="wifi_direct_role">Role</string>
+    <string name="copy_passphrase">复制密码</string>
+    <string name="passphrase_copied">Passphrase copied</string>
+    <string name="passphrase_unavailable">No passphrase available</string>
+
+    <string name="wifi_direct_no_devices">No devices discovered yet</string>
+    <string name="wifi_direct_tap_discover">Tap Discover to scan</string>
+    <string name="connect">Connect</string>
+    <string name="device_connected">Connected</string>
+    <string name="device_invited">Invited</string>
+    <string name="device_failed">Failed</string>
+    <string name="device_available">Available</string>
+    <string name="device_unavailable">Unavailable</string>
+    <string name="device_unknown">Unknown</string>
+
+    <!-- Wi-Fi Direct log messages -->
+    <string name="wifi_direct_perm_granted">Permissions granted</string>
+    <string name="wifi_direct_perm_denied">Some permissions denied: %1$s</string>
+    <string name="wifi_direct_p2p_enabled">P2P enabled</string>
+    <string name="wifi_direct_p2p_disabled">P2P disabled</string>
+    <string name="wifi_direct_peers_changed">Peers changed</string>
+    <string name="wifi_direct_connection_changed">Connection changed</string>
+    <string name="wifi_direct_this_device">This device: %1$s / %2$s</string>
+    <string name="wifi_direct_channel_lost">Channel lost</string>
+
+    <string name="wifi_direct_create_group_requested">createGroup requested</string>
+    <string name="wifi_direct_create_group_failed">createGroup failed: %1$d</string>
+    <string name="wifi_direct_remove_group_success">removeGroup success</string>
+    <string name="wifi_direct_remove_group_failed">removeGroup failed: %1$d</string>
+    <string name="wifi_direct_discover_requested">discoverPeers requested</string>
+    <string name="wifi_direct_discover_failed">discoverPeers failed: %1$d</string>
+    <string name="wifi_direct_peers_found">Found %1$d peers</string>
+    <string name="wifi_direct_connect_requested">connect requested to %1$s</string>
+    <string name="wifi_direct_connect_failed">connect failed: %1$d</string>
+    <string name="wifi_direct_connection_info">Connection info: groupFormed=%1$b, isGO=%2$b</string>
+    <string name="wifi_direct_group_info">Group info: SSID=%1$s, pass=%2$s, isGO=%3$b</string>
+    <string name="wifi_direct_probe_started">Probing AP-STA concurrency…</string>
+    <string name="wifi_direct_probe_result">Concurrency probe result: %1$s (source=%2$s)</string>
 </resources>

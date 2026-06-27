@@ -240,3 +240,150 @@
 - [x] 高保真设计稿：`docs/UI_DESIGNS.md`
 - [ ] Figma/Sketch 源文件（M4 可由设计师补充）
 - [ ] 切图与图标资源（M4 补充）
+
+---
+
+## 9. Direct Connection Test 页（直连测试，M4-T4-UI 重构）
+
+> 适用范围：`WifiDirectTestActivity`（界面向普通用户展示为 **Direct Connection Test / 直连测试**）
+> 目标：将原本信息堆叠的测试页重构为信息分层、操作分区、视觉简洁的开发者工具页。
+
+### 9.1 设计原则
+
+- **一页一意图**：顶部看状态，中部操作，下部看结果。
+- **状态可视化**：用卡片+颜色+文字共同表达 Wi-Fi Direct 与并发能力状态。
+- **操作可预测**：按钮按功能分组，禁用状态给出明确原因（或置灰 + 辅助说明）。
+- **日志可折叠**：默认收起，避免开发者工具页一屏信息过载。
+
+### 9.2 布局
+
+```
+┌─────────────────────────────────────┐
+│  ← Direct Connection Test           │  TopAppBar (titleLarge)
+├─────────────────────────────────────┤
+│  Status                             │  titleMedium
+│  ┌─────────────────────────────┐    │
+│  │  Wi-Fi Direct    Enabled    │    │  bodyMedium
+│  │  Group           Idle       │    │
+│  │  Multi-hop       Unknown    │    │
+│  └─────────────────────────────┘    │  surfaceVariant, 16dp radius
+├─────────────────────────────────────┤
+│  Actions                            │  titleMedium
+│  ┌─────────────────────────────┐    │
+│  │  [   Create Group   ]       │    │  Primary Button
+│  │  [   Remove Group   ]       │    │  Outlined Button
+│  │                             │    │
+│  │  [Discover]  [List Peers]   │    │  OutlinedButton Row
+│  │                             │    │
+│  │  [ Probe AP-STA concurrency]│    │  enabled only when client
+│  └─────────────────────────────┘    │  surfaceVariant, 16dp radius
+├─────────────────────────────────────┤
+│  Group Info                         │  titleMedium (conditional)
+│  ┌─────────────────────────────┐    │
+│  │  SSID:    DIRECT-OffGrid-XX │    │
+│  │  Pass:    xxxxxxxx          │    │
+│  │  Role:    Group Owner       │    │
+│  └─────────────────────────────┘    │  surfaceVariant, 16dp radius
+├─────────────────────────────────────┤
+│  Devices (0)                        │  titleMedium
+│  ┌─────────────────────────────┐    │
+│  │  [Phone] OnePlus 11         │    │  ListItem
+│  │  a1:b2:c3:d4:e5:f6   [Conn]│    │  trailing Connect Button
+│  └─────────────────────────────┘    │  surfaceVariant, 16dp radius
+├─────────────────────────────────────┤
+│  Logs  [expand ▼]                   │  titleMedium + trailing icon
+│  ┌─────────────────────────────┐    │
+│  │ 21:34:12  P2P enabled       │    │  bodySmall, maxHeight 200dp
+│  │ 21:34:45  Group created     │    │  scrollable
+│  └─────────────────────────────┘    │  surfaceVariant, 16dp radius
+└─────────────────────────────────────┘
+```
+
+### 9.3 信息分层与组件规范
+
+#### 顶部状态卡（Status Card）
+
+- **背景**：`surfaceVariant`（`#E0E0E0`）。
+- **圆角**：`16dp`。
+- **内边距**：`16dp`。
+- **行布局**：左侧固定宽度标签（`onSurfaceVariant`），右侧状态值（`bodyLarge`）。
+- **状态值颜色**：
+  - `Enabled` / `Group Owner` / `Client` / `Supported` → `primary`
+  - `Disabled` / `Failed` / `Unsupported` → `error`
+  - `Idle` / `Unknown` / `Scanning` → `onSurfaceVariant`
+- **辅助图标**：状态行前可增加 24dp 图标（可选），避免纯颜色表达状态。
+
+#### 操作卡（Actions Card）
+
+- **背景**：`surfaceVariant`，`16dp` 圆角，`16dp` 内边距。
+- **按钮分组**：
+  1. 组管理：`Create Group`（Primary）在上，`Remove Group`（Outlined）在下。
+  2. 发现：`Discover` 与 `List Peers` 并排，各占一半宽度。
+  3. 并发探测：`Probe AP-STA concurrency` 单独一行。
+- **禁用规则**：
+  - `Probe AP-STA concurrency` 仅在 `groupFormed == true && isGroupOwner == false` 时可用；否则禁用，并在按钮下方显示 `bodySmall` 提示：「需先作为 Client 加入 Group」。
+  - `Create Group` 在已有 Group 时建议禁用或提示先 Remove。
+- **加载/进行态**：异步操作按钮显示为禁用并替换文字为「Creating…」「Scanning…」「Connecting…」。
+
+#### Group Info 卡（条件显示）
+
+- 仅在 `groupFormed == true` 时显示。
+- 展示 `SSID`、`Passphrase`、`Role`。
+- `Passphrase` 右侧可增加小型复制图标按钮（`Icons.Default.ContentCopy`），点击后 Snackbar 提示「已复制」。
+
+#### 设备列表卡（Devices Card）
+
+- **背景**：`surfaceVariant`，`16dp` 圆角。
+- **空态**：列表为空时显示居中 `Icons.Default.Devices` + `bodyLarge`「No devices discovered yet」+ `bodyMedium`「Tap Discover to scan」。
+- **列表项**：使用 Material3 `ListItem`。
+  - **Leading**：`Icons.Default.Smartphone`（或按设备类型区分，默认手机图标）。
+  - **Headline**：`deviceName`，`bodyLarge`。
+  - **Supporting**：`deviceAddress` + 设备状态（Available / Invited / Connected / Failed），`bodyMedium`，`onSurfaceVariant`。
+  - **Trailing**：`Connect` OutlinedButton；已连接/邀请中时显示状态 Chip 并禁用按钮。
+- **最小触控目标**：Connect 按钮满足 48dp。
+
+#### 日志卡（Logs Card）
+
+- **默认折叠**：仅显示标题行 + 最近 2 条日志预览（或仅显示条数）。
+- **展开**：点击标题行右侧图标切换，展开后高度最大 `200dp`，内部垂直滚动。
+- **时间格式**：`HH:mm:ss`，`bodySmall`，`onSurfaceVariant`。
+- **自动滚动**：展开时若新增日志，列表自动滚动到底部。
+
+### 9.4 交互说明
+
+| 操作 | 触发 | 反馈 |
+|------|------|------|
+| Create Group | 点击按钮 | 按钮变为「Creating…」并禁用；成功后 Status 卡更新为 Group Owner；Logs 新增记录 |
+| Remove Group | 点击按钮 | 按钮变为「Removing…」；成功后 Group Info 卡隐藏，Status 回到 Idle |
+| Discover | 点击按钮 | 按钮变为「Scanning…」并禁用；扫描期间设备列表可继续显示上次结果 |
+| List Peers | 点击按钮 | 立即刷新设备列表；无设备时显示空态 |
+| Connect | 点击设备行 Connect | 按钮变为「Connecting…」；连接成功后该设备行显示 Connected 状态 |
+| Probe Concurrency | 点击按钮 | 仅 Client 状态下可用；探测完成后 Status 卡 Multi-hop 状态更新 |
+| Logs 标题 | 点击展开/收起 | 图标旋转 180°，内容区展开/收起 |
+| Group Info Passphrase | 点击复制图标 | Snackbar：「Passphrase copied」 |
+
+### 9.5 设计 Token 使用
+
+| 元素 | Token | 值 |
+|------|-------|-----|
+| 页面背景 | `background` | `#FFFFFF`（Light）/ `#1C1B1F`（Dark） |
+| 卡片背景 | `surfaceVariant` | `#E0E0E0` / `#49454F` |
+| 主要操作按钮 | `primary` / `onPrimary` | `#2E7D32` / `#FFFFFF` |
+| 次要/描边按钮 | `outline` / `primary` | `#79747E` / `#2E7D32` |
+| 成功状态文字 | `primary` | `#2E7D32` |
+| 错误/不可用状态 | `error` | `#B00020` |
+| 次级文字 | `onSurfaceVariant` | `#49454F` / `#CAC4D0` |
+| 页面水平内边距 | `spaceL` | `24dp` |
+| 卡片内边距 | `spaceM` | `16dp` |
+| 卡片间距 | `spaceM` | `16dp` |
+| 卡片圆角 | - | `16dp` |
+| 按钮圆角 | - | `12dp` |
+
+### 9.6 可用性检查
+
+- [ ] 状态不仅依赖颜色，也使用文字标签。
+- [ ] 所有按钮具备 `contentDescription`。
+- [ ] 触控目标 ≥ 48dp。
+- [ ] 日志默认折叠，减少首屏信息密度。
+- [ ] 深色模式下卡片/按钮/文字对比度 ≥ 4.5:1。
+

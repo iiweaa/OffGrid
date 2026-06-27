@@ -27,9 +27,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.offgrid.app.OffGridApplication
+import com.offgrid.app.R
 import com.offgrid.app.ui.theme.ThemeMode
 import com.offgrid.app.ui.theme.ThemePreference
 
@@ -125,7 +127,7 @@ private fun DeveloperToolsCard(context: Context) {
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Wi-Fi Direct test")
+            Text(stringResource(R.string.title_wifi_direct_test))
         }
         OutlinedButton(
             onClick = {
