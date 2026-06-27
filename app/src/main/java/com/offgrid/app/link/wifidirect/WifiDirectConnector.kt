@@ -20,9 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED
 import com.offgrid.app.R
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +28,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
 
 private const val TAG = "WifiDirectConnector"
@@ -126,7 +123,6 @@ class WifiDirectConnector(
                 when (role) {
                     NetworkRole.GROUP_OWNER -> createGroupAsOwner()
                     NetworkRole.CLIENT -> connectAsClient()
-                    NetworkRole.AUTO -> autoRole()
                 }
             } catch (e: CancellationException) {
                 Log.d(TAG, "Establish cancelled")
@@ -168,13 +164,35 @@ class WifiDirectConnector(
 
     private suspend fun createGroupAsOwner() {
         _state.value = NetworkConnectionState.Connecting(appContext.getString(R.string.network_creating_group))
+
+        // Reuse an existing group if this device is already the GO. This avoids
+        // createGroup BUSY when a previous P2P group was left behind.
+        val existingGroup = requestGroupInfoSync()
+        if (existingGroup != null && existingGroup.isGroupOwner) {
+            Log.d(TAG, "Reusing existing GO group: ${existingGroup.networkName}")
+            groupInfo = existingGroup
+            groupFormed = true
+            isGroupOwner = true
+            publishGroupAndWaitForClient(existingGroup.toGroupInfo())
+            return
+        }
+
         val ok = suspendCreateGroup()
         if (!ok) {
-            fail(
-                appContext.getString(R.string.network_error_create_group),
-                appContext.getString(R.string.network_hint_create_group)
-            )
-            return
+            // The call may have failed because a group already exists. If we are
+            // already the GO, treat it as success rather than failing the UI.
+            val group = requestGroupInfoSync()
+            if (group == null || !group.isGroupOwner) {
+                fail(
+                    appContext.getString(R.string.network_error_create_group),
+                    appContext.getString(R.string.network_hint_create_group)
+                )
+                return
+            }
+            Log.d(TAG, "createGroup returned busy/error but GO group exists, continuing")
+            groupInfo = group
+            groupFormed = true
+            isGroupOwner = true
         }
 
         _state.value = NetworkConnectionState.Connecting(appContext.getString(R.string.network_waiting_group_info))
@@ -187,6 +205,10 @@ class WifiDirectConnector(
             return
         }
 
+        publishGroupAndWaitForClient(info)
+    }
+
+    private suspend fun publishGroupAndWaitForClient(info: GroupInfo) {
         _state.value = NetworkConnectionState.GroupCreated(info)
 
         _state.value = NetworkConnectionState.Connecting(appContext.getString(R.string.network_waiting_client))
@@ -197,6 +219,15 @@ class WifiDirectConnector(
         } else {
             _state.value = NetworkConnectionState.GroupCreated(info)
         }
+    }
+
+    private fun WifiP2pGroup.toGroupInfo(): GroupInfo {
+        return GroupInfo(
+            networkName = networkName ?: "-",
+            passphrase = passphrase,
+            isGroupOwner = isGroupOwner,
+            clientCount = clientList.size
+        )
     }
 
     private suspend fun connectAsClient() {
@@ -230,16 +261,6 @@ class WifiDirectConnector(
             return
         }
         _state.value = NetworkConnectionState.Connected(info)
-    }
-
-    private suspend fun autoRole() {
-        _state.value = NetworkConnectionState.Connecting(appContext.getString(R.string.network_scanning_auto))
-        val goDevice = discoverGroupOwner(DISCOVER_TIMEOUT_MS)
-        if (goDevice != null) {
-            connectAsClient(goDevice)
-        } else {
-            createGroupAsOwner()
-        }
     }
 
     private suspend fun connectAsClient(device: WifiP2pDevice) {

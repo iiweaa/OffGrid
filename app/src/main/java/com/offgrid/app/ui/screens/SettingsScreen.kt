@@ -382,7 +382,6 @@ private fun InfoRow(label: String, value: String) {
 
 @Composable
 private fun roleLabel(role: NetworkRole): String = when (role) {
-    NetworkRole.AUTO -> stringResource(R.string.network_role_auto)
     NetworkRole.GROUP_OWNER -> stringResource(R.string.network_role_group_owner)
     NetworkRole.CLIENT -> stringResource(R.string.network_role_client)
 }

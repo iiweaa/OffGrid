@@ -117,7 +117,6 @@
 
     <!-- Network / Connection -->
     <string name="network_role">Network role</string>
-    <string name="network_role_auto">Auto</string>
     <string name="network_role_group_owner">Group Owner</string>
     <string name="network_role_client">Client</string>
     <string name="network_go_config">Group Owner config</string>
@@ -151,7 +150,6 @@
     <string name="network_waiting_group_info">Waiting for group info…</string>
     <string name="network_waiting_client">Waiting for peer to join…</string>
     <string name="network_scanning">Scanning for Group Owner…</string>
-    <string name="network_scanning_auto">Scanning, will create group if no owner found…</string>
     <string name="network_connecting_to">Connecting to %1$s…</string>
     <string name="network_waiting_connection">Waiting for connection…</string>
 

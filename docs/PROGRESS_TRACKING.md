@@ -117,7 +117,8 @@
 | M4-T4 | UI/UX 页面实现 | Designer / Android Dev | 已完成 | M3.5-T6 | 设计稿完整实现，clean build 通过 | 底部导航 Home/Call/Peers/Settings；Onboarding 三页引导；主题切换；配色按 DESIGN_SYSTEM.md 实现 |
 | M4-T4-UI | 重构 Wi-Fi Direct Test 页面 | Android Dev / Designer | 已完成 | M4-T4, M2-T4 | 页面符合设计系统；状态清晰、操作分区、日志可折叠 | 已重命名为 Direct Connection Test；一加 11 / 华为 Mate 30 Pro 5G 真机验证通过；代码已 push 到 origin/main |
 | M4-T5 | 手动网络配置入口 | `pro-android-app` | 等待 review | M3-T3 | 可手动选择 GO/Client | 代码已 push（`9d4a5ee`），真机验证拆分为 M4-T5-VERIFY |
-| M4-T5-VERIFY | M4-T5 真机网络验证 | `pro-android-system-test` | 本周进行 | M4-T5 | 一加/华为三种模式通话均正常，故障提示正确 | QA 独立执行真机验证，PM 复核；见 `docs/M4-T5_VERIFICATION.md` |
+| M4-T5-FIX | 修复 Auto 模式 Group 断连死锁 | `pro-android-app` | 已完成 | M4-T5 | 按决策移除 Auto 模式，仅保留手动 GO/Client；GO 复用已有 Group 避免 BUSY | Auto 模式因 `setDeviceName()` 失效及第三方 P2P 干扰无法稳定识别对端，已删除相关代码；GO 侧增加已有 Group 复用逻辑，TC-1 复测通过 |
+| M4-T5-VERIFY | M4-T5 真机网络验证 | `pro-android-system-test` | 本周进行 | M4-T5, M4-T5-FIX | 一加/华为 GO/Client 两种模式通话均正常，故障提示正确 | TC-1（一加 GO + 华为 Client）已复测通过；TC-2、TC-3 待执行；见 `docs/M4-T5_VERIFICATION.md` |
 | M4-T6 | 省电模式 | `pro-android-app` | 等待 review | M4-T1 | 省电模式耗电下降 ≥ 20% | 代码已 push（`81cce23`），功耗验证拆分为 M4-T6-VERIFY |
 | M4-T6-VERIFY | M4-T6 真机功耗验证 | `pro-android-system-test` | 本周进行 | M4-T6 | 15 分钟普通/省电耗电对比，省电 ≥ 20% | QA 独立执行功耗测试，PM 复核；见 `docs/M4-T6_VERIFICATION.md` |
 | M4-T7 | 完善开发文档 | `pro-android-app` | 本周进行 | - | 新贡献者可独立构建 | 技术审阅：`pro-android-app`；最终验收：`pro-general-pm` |

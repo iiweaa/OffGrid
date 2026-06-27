@@ -11,9 +11,9 @@ object NetworkConfig {
     fun getRole(context: Context): NetworkRole {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         return try {
-            NetworkRole.valueOf(prefs.getString(KEY_ROLE, NetworkRole.AUTO.name)!!)
+            NetworkRole.valueOf(prefs.getString(KEY_ROLE, NetworkRole.GROUP_OWNER.name)!!)
         } catch (_: Exception) {
-            NetworkRole.AUTO
+            NetworkRole.GROUP_OWNER
         }
     }
 

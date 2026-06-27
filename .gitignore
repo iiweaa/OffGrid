@@ -22,3 +22,7 @@ Thumbs.db
 # Captures / external native build
 captures/
 .externalNativeBuild/
+
+# Local test / debug logs
+logs/
+.logs/
