@@ -9,8 +9,9 @@
 
 | ID | 任务名称 | 负责人 | 状态 | 截止时间 | 依赖 | 验收标准 | 备注 |
 |----|----------|--------|------|----------|------|----------|------|
-| M4-T5 | 手动网络配置入口与故障排查提示 | `pro-android-app` | 本周进行 | 2026-07-04 | M3-T3 | 见 `docs/M4-T5_MANUAL_NETWORK_CONFIG.md` 第 7 节 | 需求文档已就绪，索引见 `.skill/INDEX.md`，角色映射见 `.skill/ROLES.md` |
-| M4-T5-OPT | 任务分配机制与对话流程优化 | `pro-general-mechanism` | 本周进行 | 2026-06-28 | - | 输出 `.skill/` 初始化结构与流程优化建议，并被采纳 | 由用户直接发起，机制负责分析与落地 |
+| M4-T5 | 手动网络配置入口与故障排查提示 | `pro-android-app` | 等待 review | 2026-07-04 | M3-T3 | 见 `docs/M4-T5_MANUAL_NETWORK_CONFIG.md` 第 7 节 | 代码已 push（`9d4a5ee`），真机验证（一加/华为三种模式）待 QA/开发完成 |
+| M4-T5-OPT | 任务分配机制与对话流程优化 | `pro-general-mechanism` | 已完成 | 2026-06-28 | - | 输出 `.skill/` 初始化结构与流程优化建议，并被采纳 | 已同步更新 skill 仓库，`.skill/` 标准结构已落地 |
+| M4-T6 | 省电模式 | `pro-android-app` | 本周进行 | 2026-07-07 | M4-T1 | 省电模式耗电下降 ≥ 20% | 需求文档：`docs/M4-T6_POWER_SAVING.md` |
 
 ---
 

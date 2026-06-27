@@ -13,10 +13,14 @@
 
 ## 当前任务
 
-- **M4-T5**：手动网络配置入口与故障排查提示
-  - 需求文档：`docs/M4-T5_MANUAL_NETWORK_CONFIG.md`
-  - 核心接入点：`VoiceService.kt`、`CallViewModel.kt`、`SettingsScreen.kt`、`CallScreen.kt`
-  - 参考实现：`WifiDirectTestActivity.kt`
+- **M4-T6**：省电模式
+  - 需求文档：`docs/M4-T6_POWER_SAVING.md`
+  - 核心接入点：`PowerSavingConfig.kt`、`AudioEngine.kt`、`LocationEngine.kt`、`VoiceService.kt`、`SettingsScreen.kt`、`CallScreen.kt`
+  - 目标：省电模式耗电下降 ≥ 20%
+
+## 历史参考
+
+- M4-T5 已完成：`docs/M4-T5_MANUAL_NETWORK_CONFIG.md`
 
 ## 强制检查
 
