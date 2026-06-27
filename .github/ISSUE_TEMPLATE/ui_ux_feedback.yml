@@ -1,0 +1,75 @@
+name: 🎨 UI/UX 反馈
+description: 提交界面设计、交互体验、可用性方面的反馈
+title: "[UI/UX] "
+labels: ["ui-ux", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        欢迎反馈界面与交互体验！请附上截图和具体场景，帮助我们改进。
+
+  - type: input
+    id: page
+    attributes:
+      label: 相关页面/功能
+      placeholder: "例如：首页 / 方位页 / 设置页 / 首次引导"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: 反馈类型
+      options:
+        - 视觉问题（颜色、字体、布局）
+        - 交互问题（操作不顺畅、反馈缺失）
+        - 可用性问题（难以理解、找不到功能）
+        - 可访问性问题（对比度、字体大小）
+        - 改进建议
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述
+      description: 具体描述你遇到的问题或建议
+      placeholder: "例如：方位页的罗盘指针在深色模式下对比度不足，难以辨认"
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 复现步骤（如适用）
+      placeholder: |
+        1. 进入方位页
+        2. 切换到深色模式
+        3. 观察罗盘指针
+    validations:
+      required: false
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: 改进建议（可选）
+      description: 如果你有具体的改进想法，请描述
+    validations:
+      required: false
+
+  - type: textarea
+    id: media
+    attributes:
+      label: 截图 / 录屏
+      description: 请尽量附上截图或录屏
+    validations:
+      required: false
+
+  - type: input
+    id: device
+    attributes:
+      label: 设备型号（可选）
+      placeholder: "例如：Pixel 7"
+    validations:
+      required: false

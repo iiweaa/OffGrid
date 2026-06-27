@@ -1,0 +1,102 @@
+name: 📱 设备兼容性报告
+description: 报告某款 Android 设备在 OffGrid 上的兼容性情况
+title: "[Device] "
+labels: ["device-compat", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        兼容性数据对 OffGrid 非常重要！请填写以下信息，帮助建立兼容性设备列表。
+
+  - type: input
+    id: device
+    attributes:
+      label: 设备型号
+      placeholder: "例如：Samsung Galaxy S23 SM-S9110"
+    validations:
+      required: true
+
+  - type: input
+    id: android_version
+    attributes:
+      label: Android 版本
+      placeholder: "例如：Android 14 (API 34) / One UI 6.1"
+    validations:
+      required: true
+
+  - type: input
+    id: app_version
+    attributes:
+      label: OffGrid 版本
+      placeholder: "例如：v0.2.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ap_sta_concurrency
+    attributes:
+      label: 是否支持 Wi-Fi Direct AP-STA 并发
+      description: 即能否同时作为 Group Owner 和 Client
+      options:
+        - 支持
+        - 不支持
+        - 不确定
+    validations:
+      required: true
+
+  - type: dropdown
+    id: direct_voice
+    attributes:
+      label: 2 台直连语音
+      options:
+        - 正常工作
+        - 偶发问题
+        - 无法使用
+        - 未测试
+    validations:
+      required: true
+
+  - type: dropdown
+    id: multi_hop
+    attributes:
+      label: 多跳中继（3 台及以上）
+      options:
+        - 正常工作
+        - 偶发问题
+        - 无法使用
+        - 未测试
+        - 设备不支持 AP-STA 并发，未测试多跳
+    validations:
+      required: true
+
+  - type: dropdown
+    id: background
+    attributes:
+      label: 后台保活
+      options:
+        - 正常
+        - 锁屏后易断
+        - 需关闭电池优化才正常
+        - 未测试
+    validations:
+      required: false
+
+  - type: dropdown
+    id: headset
+    attributes:
+      label: 蓝牙耳机支持
+      options:
+        - 正常
+        - 麦克风切换异常
+        - 按键控制异常
+        - 未测试
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: 备注
+      description: 其他观察、日志、特殊设置等
+    validations:
+      required: false

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OffGrid</string>
+    <string name="title_wifi_direct_test">Wi-Fi Direct Test</string>
+    <string name="title_opus_latency_test">Opus Latency Test</string>
+
+    <string name="notification_channel_name">OffGrid Voice</string>
+    <string name="notification_title">OffGrid 语音通话中</string>
+    <string name="notification_content">正在通过 Wi-Fi Direct 进行直连语音</string>
+    <string name="notification_stop">停止</string>
+
+    <string name="screen_home">Home</string>
+    <string name="screen_call">Call</string>
+</resources>

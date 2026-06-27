@@ -1,0 +1,122 @@
+name: 🏔️ 户外测试报告
+description: 提交户外实地测试数据，帮助改进离线通讯效果
+title: "[Outdoor Test] "
+labels: ["outdoor-test", "field-data", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢进行户外实测！请尽可能详细记录环境、设备和通信数据。
+
+  - type: input
+    id: date
+    attributes:
+      label: 测试日期
+      placeholder: "例如：2026-07-15"
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: 测试地点 / 环境
+      description: 大致地理位置与地形
+      placeholder: "例如：某山区徒步道 / 城市郊野公园 / 公路骑行道"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: terrain
+    attributes:
+      label: 地形类型
+      options:
+        - 开阔平地
+        - 起伏山地
+        - 森林/植被茂密
+        - 城市建筑间
+        - 公路/隧道
+        - 其他
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 应用版本
+      placeholder: "例如：v0.3.0-alpha"
+    validations:
+      required: true
+
+  - type: textarea
+    id: devices
+    attributes:
+      label: 测试设备
+      description: 列出所有参与测试的机型与 Android 版本
+      placeholder: |
+        - Samsung Galaxy S23 / Android 14
+        - Xiaomi 13 / Android 13
+        - Pixel 7 / Android 14
+    validations:
+      required: true
+
+  - type: input
+    id: node_count
+    attributes:
+      label: 节点数量
+      placeholder: "例如：3"
+    validations:
+      required: true
+
+  - type: textarea
+    id: topology
+    attributes:
+      label: 组网拓扑 / 队形
+      description: 描述人员排列与距离关系
+      placeholder: |
+        A（领队）— 30m — B（中继）— 80m — C（收尾）
+        A 与 C 直线距离约 110m
+    validations:
+      required: false
+
+  - type: textarea
+    id: results
+    attributes:
+      label: 测试结果
+      description: 语音质量、延迟、连接稳定性、位置共享等
+      placeholder: |
+        - 单跳语音：清晰，无明显延迟
+        - 两跳语音（A→B→C）：偶有断续，延迟约 500ms
+        - 位置共享：刷新正常，方位显示准确
+        - 后台保活：锁屏 10 分钟后仍能接收
+    validations:
+      required: true
+
+  - type: textarea
+    id: issues
+    attributes:
+      label: 遇到的问题
+      description: 任何异常、断连、延迟过大、音质问题等
+      placeholder: |
+        - C 节点偶发掉线，需重新组网
+        - 蓝牙耳机麦克风收音偏小
+    validations:
+      required: false
+
+  - type: textarea
+    id: battery
+    attributes:
+      label: 耗电情况（可选）
+      description: 如有记录，请填写
+      placeholder: |
+        - 持续通话 1 小时耗电约 18%
+        - 纯待机 2 小时耗电约 5%
+    validations:
+      required: false
+
+  - type: textarea
+    id: media
+    attributes:
+      label: 截图 / 录屏 / 日志（可选）
+      description: 可上传截图或粘贴日志
+    validations:
+      required: false
