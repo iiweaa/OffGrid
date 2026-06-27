@@ -18,11 +18,17 @@ import com.offgrid.app.audio.AudioEngine
 import com.offgrid.app.audio.media.MediaButtonHandler
 import com.offgrid.app.audio.router.AudioRouter
 import com.offgrid.app.link.LinkManager
-import com.offgrid.app.service.keepalive.KeepAliveHelper
 import com.offgrid.app.link.location.Location
 import com.offgrid.app.link.location.LocationEngine
 import com.offgrid.app.link.location.LocationPayload
 import com.offgrid.app.link.packet.PacketType
+import com.offgrid.app.power.PowerSavingConfig
+import com.offgrid.app.service.keepalive.KeepAliveHelper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class VoiceService : Service() {
 
@@ -60,8 +66,13 @@ class VoiceService : Service() {
     private lateinit var audioRouter: AudioRouter
     private lateinit var mediaButtonHandler: MediaButtonHandler
 
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    private var locationBroadcastIntervalMs = 5000L
+    private var lastLocationBroadcastMs = 0L
+
     override fun onCreate() {
         super.onCreate()
+        PowerSavingConfig.init(this)
         audioEngine = AudioEngine(this)
         linkManager = LinkManager((application as OffGridApplication).localNodeId)
         locationEngine = LocationEngine(this)
@@ -69,6 +80,23 @@ class VoiceService : Service() {
         audioRouter = AudioRouter(this)
         mediaButtonHandler = MediaButtonHandler(this)
         createNotificationChannel()
+
+        serviceScope.launch {
+            PowerSavingConfig.enabledFlow.collect { enabled ->
+                if (VoiceStateHolder.state.value.isRunning) {
+                    audioEngine.setPowerSaving(enabled)
+                    locationEngine.setPowerSaving(enabled)
+                    locationBroadcastIntervalMs = if (enabled) 15000L else 5000L
+                    VoiceStateHolder.update { it.copy(isPowerSaving = enabled) }
+                    updateNotification()
+                }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceScope.cancel()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -93,6 +121,12 @@ class VoiceService : Service() {
             stopSelf()
             return
         }
+
+        val isPowerSaving = PowerSavingConfig.isEnabled(this)
+        audioEngine.setPowerSaving(isPowerSaving)
+        locationEngine.setPowerSaving(isPowerSaving)
+        locationBroadcastIntervalMs = if (isPowerSaving) 15000L else 5000L
+        VoiceStateHolder.update { it.copy(isPowerSaving = isPowerSaving) }
 
         audioEngine.setOnEncodedFrame { data, length ->
             linkManager.send(data, length)
@@ -125,8 +159,13 @@ class VoiceService : Service() {
                 timestampMs = androidLocation.time
             )
             VoiceStateHolder.update { it.copy(myLocation = location) }
-            val payload = LocationPayload.serialize(location)
-            linkManager.send(PacketType.LOCATION, payload, payload.size)
+
+            val now = System.currentTimeMillis()
+            if (now - lastLocationBroadcastMs >= locationBroadcastIntervalMs) {
+                lastLocationBroadcastMs = now
+                val payload = LocationPayload.serialize(location)
+                linkManager.send(PacketType.LOCATION, payload, payload.size)
+            }
         }
         locationEngine.start()
 
@@ -159,6 +198,7 @@ class VoiceService : Service() {
         audioRouter.stop()
         audioEngine.stop()
         keepAliveHelper.release()
+        lastLocationBroadcastMs = 0L
         VoiceStateHolder.update { VoiceState() }
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
@@ -197,13 +237,25 @@ class VoiceService : Service() {
             PendingIntent.FLAG_IMMUTABLE
         )
 
+        val powerSaving = VoiceStateHolder.state.value.isPowerSaving
+        val contentText = if (powerSaving) {
+            getString(R.string.notification_content_power_saving)
+        } else {
+            getString(R.string.notification_content)
+        }
+
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle(getString(R.string.notification_title))
-            .setContentText(getString(R.string.notification_content))
+            .setContentText(contentText)
             .setSmallIcon(R.drawable.ic_launcher)
             .setContentIntent(contentIntent)
             .addAction(0, getString(R.string.notification_stop), stopIntent)
             .setOngoing(true)
             .build()
+    }
+
+    private fun updateNotification() {
+        val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        manager.notify(NOTIFICATION_ID, buildNotification())
     }
 }

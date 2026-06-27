@@ -30,6 +30,10 @@ class AudioEngine(private val context: Context) {
         const val SAMPLE_RATE = 16000
         const val FRAME_MS = 20
         const val CHANNELS = 1
+        const val BITRATE_NORMAL = 24000
+        const val BITRATE_POWER_SAVING = 12000
+        const val COMPLEXITY_NORMAL = 5
+        const val COMPLEXITY_POWER_SAVING = 3
         val FRAME_SAMPLES: Int = SAMPLE_RATE * FRAME_MS / 1000
         val BYTES_PER_FRAME: Int = FRAME_SAMPLES * 2
     }
@@ -39,6 +43,7 @@ class AudioEngine(private val context: Context) {
     }
     private val running = AtomicBoolean(false)
     private val muted = AtomicBoolean(false)
+    private val powerSaving = AtomicBoolean(false)
 
     private var audioRecord: AudioRecord? = null
     private var audioTrack: AudioTrack? = null
@@ -58,6 +63,17 @@ class AudioEngine(private val context: Context) {
     }
 
     fun isMuted(): Boolean = muted.get()
+
+    fun setPowerSaving(isPowerSaving: Boolean) {
+        powerSaving.set(isPowerSaving)
+        encoder?.apply {
+            setBitrate(if (isPowerSaving) BITRATE_POWER_SAVING else BITRATE_NORMAL)
+            setComplexity(if (isPowerSaving) COMPLEXITY_POWER_SAVING else COMPLEXITY_NORMAL)
+        }
+        Log.d(TAG, "Power saving mode: $isPowerSaving")
+    }
+
+    fun isPowerSaving(): Boolean = powerSaving.get()
 
     @SuppressLint("MissingPermission")
     fun start(): Boolean {
@@ -208,8 +224,8 @@ class AudioEngine(private val context: Context) {
 
         encoder = OpusEncoder().apply {
             init(SAMPLE_RATE, CHANNELS, OpusEncoder.OPUS_APPLICATION_VOIP)
-            setBitrate(24000)
-            setComplexity(5)
+            setBitrate(if (powerSaving.get()) BITRATE_POWER_SAVING else BITRATE_NORMAL)
+            setComplexity(if (powerSaving.get()) COMPLEXITY_POWER_SAVING else COMPLEXITY_NORMAL)
         }.also { verifyNativeHandle(it, "OpusEncoder") }
 
         decoder = OpusDecoder().apply {

@@ -22,6 +22,9 @@ class LocationEngine(private val context: Context) {
 
     private val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
     private var callback: ((android.location.Location) -> Unit)? = null
+    private var currentIntervalMs = DEFAULT_INTERVAL_MS
+    private var isRunning = false
+    private var powerSaving = false
 
     private val listener = object : LocationListener {
         override fun onLocationChanged(location: android.location.Location) {
@@ -47,6 +50,37 @@ class LocationEngine(private val context: Context) {
             return
         }
 
+        currentIntervalMs = intervalMs
+        isRunning = true
+        requestUpdates(intervalMs)
+    }
+
+    fun stop() {
+        isRunning = false
+        try {
+            locationManager.removeUpdates(listener)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to remove location updates", e)
+        }
+    }
+
+    fun setPowerSaving(enabled: Boolean) {
+        if (powerSaving == enabled) return
+        powerSaving = enabled
+        val newInterval = if (enabled) POWER_SAVING_INTERVAL_MS else DEFAULT_INTERVAL_MS
+        if (isRunning) {
+            stop()
+            start(newInterval)
+        } else {
+            currentIntervalMs = newInterval
+        }
+        Log.d(TAG, "Power saving mode: $enabled, interval=$newInterval ms")
+    }
+
+    fun isPowerSaving(): Boolean = powerSaving
+
+    @SuppressLint("MissingPermission")
+    private fun requestUpdates(intervalMs: Long) {
         try {
             locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER,
@@ -74,14 +108,6 @@ class LocationEngine(private val context: Context) {
         }
     }
 
-    fun stop() {
-        try {
-            locationManager.removeUpdates(listener)
-        } catch (e: Exception) {
-            Log.w(TAG, "Failed to remove location updates", e)
-        }
-    }
-
     private fun hasLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             context,
@@ -91,6 +117,7 @@ class LocationEngine(private val context: Context) {
 
     companion object {
         private const val TAG = "LocationEngine"
-        const val DEFAULT_INTERVAL_MS = 2000L
+        const val DEFAULT_INTERVAL_MS = 1000L
+        const val POWER_SAVING_INTERVAL_MS = 5000L
     }
 }

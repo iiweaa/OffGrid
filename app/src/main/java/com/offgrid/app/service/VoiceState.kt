@@ -10,6 +10,7 @@ import java.net.InetAddress
 data class VoiceState(
     val isRunning: Boolean = false,
     val isMuted: Boolean = false,
+    val isPowerSaving: Boolean = false,
     val peer: InetAddress? = null,
     val neighbors: List<Neighbor> = emptyList(),
     val myLocation: Location? = null,

@@ -86,6 +86,9 @@ fun CallScreen(
             )
 
             NetworkStatusCard(networkState)
+            if (voiceState.isPowerSaving) {
+                PowerSavingChip()
+            }
             NeighborListCard(voiceState.neighbors)
             LocationStatusCard(voiceState.myLocation, voiceState.peerLocations.size)
 
@@ -205,6 +208,25 @@ private fun GroupInfoRows(info: GroupInfo) {
         Text(
             text = stringResource(R.string.network_clients_label, info.clientCount),
             style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Composable
+private fun PowerSavingChip() {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+        )
+    ) {
+        Text(
+            text = stringResource(R.string.power_saving_active),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onTertiaryContainer,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
         )
     }
 }

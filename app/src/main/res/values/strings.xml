@@ -125,6 +125,15 @@
     <string name="network_passphrase">Passphrase (optional)</string>
     <string name="network_go_config_hint">Android may ignore custom values and assign them automatically.</string>
     <string name="network_concurrency_hint">Current device does not support Wi-Fi Direct AP-STA concurrency. Only one phone can act as Group Owner.</string>
+
+    <!-- Power saving -->
+    <string name="settings_power">Power</string>
+    <string name="power_saving_mode">Power saving mode</string>
+    <string name="power_saving_description">Lower audio quality and location frequency to extend battery life</string>
+    <string name="power_saving_changed_in_call">Power saving mode changed, will take effect shortly</string>
+    <string name="power_saving_active">Power saving active</string>
+    <string name="notification_content_power_saving">OffGrid voice call in progress · Power saving mode</string>
+
     <string name="network_status">Network status</string>
     <string name="network_status_idle">Idle</string>
     <string name="network_status_connecting">Connecting…</string>

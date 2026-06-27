@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,53 +19,82 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.offgrid.app.OffGridApplication
 import com.offgrid.app.R
 import com.offgrid.app.link.ConcurrencyStatus
 import com.offgrid.app.link.WifiDirectCapabilityChecker
 import com.offgrid.app.link.wifidirect.NetworkConfig
 import com.offgrid.app.link.wifidirect.NetworkRole
+import com.offgrid.app.power.PowerSavingConfig
+import com.offgrid.app.service.VoiceStateHolder
 import com.offgrid.app.ui.theme.ThemeMode
 import com.offgrid.app.ui.theme.ThemePreference
+import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.settings_title),
-                style = MaterialTheme.typography.headlineLarge
-            )
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val voiceState by VoiceStateHolder.state.collectAsStateWithLifecycle()
 
-            UserIdentityCard(context)
-            AppearanceCard(context)
-            ConnectionCard(context)
-            DeveloperToolsCard(context)
-            AboutCard(context)
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { innerPadding ->
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(innerPadding)
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_title),
+                    style = MaterialTheme.typography.headlineLarge
+                )
+
+                UserIdentityCard(context)
+                AppearanceCard(context)
+                ConnectionCard(context)
+                PowerSavingCard(context, voiceState.isRunning) {
+                    if (voiceState.isRunning) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                context.getString(R.string.power_saving_changed_in_call)
+                            )
+                        }
+                    }
+                }
+                DeveloperToolsCard(context)
+                AboutCard(context)
+            }
         }
     }
 }
@@ -203,6 +233,46 @@ private fun ConnectionCard(context: Context) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun PowerSavingCard(
+    context: Context,
+    isCallRunning: Boolean,
+    onToggleDuringCall: () -> Unit
+) {
+    val initialEnabled = remember { PowerSavingConfig.isEnabled(context) }
+    var enabled by remember { mutableStateOf(initialEnabled) }
+
+    SettingsSection(title = stringResource(R.string.settings_power)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.power_saving_mode),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Text(
+                    text = stringResource(R.string.power_saving_description),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Switch(
+                checked = enabled,
+                onCheckedChange = {
+                    enabled = it
+                    PowerSavingConfig.setEnabled(context, it)
+                    if (isCallRunning) {
+                        onToggleDuringCall()
+                    }
+                }
             )
         }
     }
