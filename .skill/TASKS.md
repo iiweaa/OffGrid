@@ -17,7 +17,7 @@
 | M4-T6 | 省电模式 | `pro-android-app` | 等待 review | 2026-07-07 | M4-T1 | 省电模式耗电下降 ≥ 20% | 代码已 push（`81cce23`），功耗验证拆分为 M4-T6-VERIFY |
 | **M4-T6-VERIFY** | **M4-T6 真机功耗验证** | **`pro-android-system-test`** | **已跳过** | **2026-07-09** | **M4-T6** | **15 分钟普通/省电耗电对比，省电 ≥ 20%** | 按用户决策暂不测试，保留脚本与方案；M4-T6 代码仍待 review |
 | **M4-T7** | **完善开发文档** | **`pro-android-app`** | **已完成** | **2026-07-08** | **-** | **新贡献者可按 BUILD.md / DEVELOPER_GUIDE.md 独立构建** | BUILD.md / README.md / DEVELOPER_GUIDE.md / ARCHITECTURE.md 已同步当前代码；`./gradlew clean build` 通过 |
-| **M4-T8** | **Beta 版本测试** | **`pro-android-system-test`** | **本周进行** | **2026-07-12** | **M4-T1~T7** | **Beta 测试报告，无 P0/P1 Bug** | 目标机型一加 11 / 华为 Mate 30 Pro；覆盖通话、后台、耳机、省电、长时间稳定性；见 `docs/M4-T8_BETA_TEST.md` |
+| **M4-T8** | **Beta 版本测试** | **`pro-android-system-test`** | **已完成** | **2026-07-12** | **M4-T1~T7** | **Beta 测试报告，无 P0/P1 Bug** | BC-1~BC-8 全部通过；修复蓝牙耳机音频路由问题；报告见 `docs/M4-T8_BETA_TEST_REPORT.md` |
 
 ---
 
