@@ -48,13 +48,14 @@ class AudioRouter(private val context: Context) {
 
     private fun route() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val current = audioManager.communicationDevice
-            if (current != null && isHeadset(current)) {
-                Log.d(TAG, "Keeping current headset communication device")
+            val devices = audioManager.availableCommunicationDevices
+            val headset = devices.find { isHeadset(it) }
+            if (headset != null) {
+                val ok = audioManager.setCommunicationDevice(headset)
+                Log.d(TAG, "Routed voice to headset (${headset.type}): $ok")
                 return
             }
-            val speaker = audioManager.availableCommunicationDevices
-                .find { it.type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER }
+            val speaker = devices.find { it.type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER }
             if (speaker != null) {
                 val ok = audioManager.setCommunicationDevice(speaker)
                 Log.d(TAG, "Routed voice to speaker: $ok")
@@ -63,8 +64,14 @@ class AudioRouter(private val context: Context) {
             }
         } else {
             @Suppress("DEPRECATION")
-            audioManager.isSpeakerphoneOn = true
-            Log.d(TAG, "Routed voice to speakerphone (legacy)")
+            val isWired = audioManager.isWiredHeadsetOn
+            val isBluetooth = audioManager.isBluetoothScoOn || audioManager.isBluetoothA2dpOn
+            if (isWired || isBluetooth) {
+                Log.d(TAG, "Headset detected, keeping legacy routing")
+            } else {
+                audioManager.isSpeakerphoneOn = true
+                Log.d(TAG, "Routed voice to speakerphone (legacy)")
+            }
         }
     }
 

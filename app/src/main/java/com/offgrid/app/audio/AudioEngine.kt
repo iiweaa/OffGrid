@@ -205,22 +205,7 @@ class AudioEngine(private val context: Context) {
 
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         audioManager.mode = AudioManager.MODE_IN_COMMUNICATION
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val speaker = audioManager.availableCommunicationDevices
-                .find { it.type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER }
-            if (speaker != null) {
-                val ok = audioManager.setCommunicationDevice(speaker)
-                Log.d(TAG, "Set communication device to speaker: $ok")
-            } else {
-                Log.w(TAG, "No built-in speaker communication device found")
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            audioManager.isSpeakerphoneOn = true
-        }
-        val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL)
-        audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, maxVol, 0)
-        Log.d(TAG, "Audio routed to speakerphone, voice call volume=$maxVol")
+        Log.d(TAG, "Audio mode set to MODE_IN_COMMUNICATION")
 
         encoder = OpusEncoder().apply {
             init(SAMPLE_RATE, CHANNELS, OpusEncoder.OPUS_APPLICATION_VOIP)
