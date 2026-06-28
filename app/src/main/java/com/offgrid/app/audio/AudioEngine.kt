@@ -15,8 +15,8 @@ import android.os.Build
 import android.os.Process
 import android.util.Log
 import androidx.core.content.ContextCompat
-import com.score.rahasak.utils.OpusDecoder
-import com.score.rahasak.utils.OpusEncoder
+import com.offgrid.app.audio.opus.OpusDecoder
+import com.offgrid.app.audio.opus.OpusEncoder
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.util.concurrent.CountDownLatch
@@ -208,26 +208,17 @@ class AudioEngine(private val context: Context) {
         Log.d(TAG, "Audio mode set to MODE_IN_COMMUNICATION")
 
         encoder = OpusEncoder().apply {
-            init(SAMPLE_RATE, CHANNELS, OpusEncoder.OPUS_APPLICATION_VOIP)
+            if (!init(SAMPLE_RATE, CHANNELS, OpusEncoder.OPUS_APPLICATION_VOIP)) {
+                throw IllegalStateException("OpusEncoder init failed")
+            }
             setBitrate(if (powerSaving.get()) BITRATE_POWER_SAVING else BITRATE_NORMAL)
             setComplexity(if (powerSaving.get()) COMPLEXITY_POWER_SAVING else COMPLEXITY_NORMAL)
-        }.also { verifyNativeHandle(it, "OpusEncoder") }
+        }
 
         decoder = OpusDecoder().apply {
-            init(SAMPLE_RATE, CHANNELS)
-        }.also { verifyNativeHandle(it, "OpusDecoder") }
-    }
-
-    private fun verifyNativeHandle(obj: Any, name: String) {
-        try {
-            val field = obj.javaClass.getDeclaredField("address")
-            field.isAccessible = true
-            val address = field.getLong(obj)
-            if (address == 0L) {
-                throw IllegalStateException("$name native handle is 0")
+            if (!init(SAMPLE_RATE, CHANNELS)) {
+                throw IllegalStateException("OpusDecoder init failed")
             }
-        } catch (e: Exception) {
-            throw IllegalStateException("Failed to verify $name native handle", e)
         }
     }
 

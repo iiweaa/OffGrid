@@ -20,15 +20,16 @@ OffGrid 是一款开源 Android 应用，让徒步、骑行等户外活动团队
 - ✅ M2：双机直连语音通话
 - ✅ M3：双机稳定 + 位置共享 + 多跳预备（详见 `docs/M3_ALPHA_TEST.md`）
 - ✅ M4-T5：手动网络配置入口（Group Owner / Client）与故障排查提示（详见 `docs/M4-T5_MANUAL_NETWORK_CONFIG.md`）
-- ✅ M4-T6：省电模式（降低语音码率与定位频率，详见 `docs/M4-T6_POWER_SAVING.md`）
-- 🚧 M4-T7：完善开发者文档（进行中）
+- ✅ M4-T7：完善开发者文档（详见 `docs/DEVELOPER_GUIDE.md`）
+- ✅ M4-T8：Beta 版本测试（详见 `docs/M4-T8_BETA_TEST_REPORT.md`）
+- ❌ M4-T6：省电模式已从产品需求中删除，不再开发和测试
 
 ## 技术栈
 
 - Kotlin
 - Jetpack Compose
 - Wi-Fi Direct
-- Opus 音频编解码
+- Opus 音频编解码（自编译 Xiph libopus + JNI）
 - UDP over IPv4（192.168.49.x/24）
 - 自定义 Mesh 包格式（NodeId、TTL、Type）
 
@@ -47,7 +48,7 @@ OffGrid 是一款开源 Android 应用，让徒步、骑行等户外活动团队
 - [M2 语音管道](./docs/M2_VOICE_PIPELINE.md)
 - [M3 Alpha 测试](./docs/M3_ALPHA_TEST.md)
 - [M4-T5 手动网络配置](./docs/M4-T5_MANUAL_NETWORK_CONFIG.md)
-- [M4-T6 省电模式](./docs/M4-T6_POWER_SAVING.md)
+- [M4-T8 Beta 测试报告](./docs/M4-T8_BETA_TEST_REPORT.md)
 
 ## 贡献
 

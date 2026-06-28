@@ -6,17 +6,8 @@
 
 ## 当前任务
 
-- **M4-T5-VERIFY**：M4-T5 真机网络验证
-  - 负责人：`pro-android-system-test`
-  - 验证文档：`docs/M4-T5_VERIFICATION.md`
-  - 脚本：`scripts/run_m4t5_verification.sh`
-  - 目标设备：一加 11（`62978a15`）、华为 Mate 30 Pro 5G（`2KE0219B02018194`）
-
-- **M4-T6-VERIFY**：M4-T6 真机功耗验证
-  - 负责人：`pro-android-system-test`
-  - 验证文档：`docs/M4-T6_VERIFICATION.md`
-  - 脚本：`scripts/run_m4t6_verification.sh`
-  - 目标设备：同上
+- **M4-T5-VERIFY**：已完成（`docs/M4-T5_VERIFICATION.md`）
+- ~~**M5-T2**：户外实测执行~~（已取消）
 
 ---
 
@@ -68,7 +59,6 @@ adb -s 2KE0219B02018194 shell dumpsys battery | grep level
 ## 测试脚本
 
 - `scripts/run_m4t5_verification.sh`：M4-T5 网络验证执行脚本
-- `scripts/run_m4t6_verification.sh`：M4-T6 功耗验证执行脚本
 
 脚本职责：
 - 检查设备在线状态；
@@ -86,14 +76,13 @@ adb -s 2KE0219B02018194 shell dumpsys battery | grep level
 
 - 测试日期、固件/应用版本、环境说明；
 - 各用例结果（通过/失败/阻塞）；
-- 失败用例的 logcat 片段、截图、复现步骤；
-- M4-T6 的耗电数据表与省电比例计算。
+- 失败用例的 logcat 片段、截图、复现步骤。
 
 ---
 
 ## 相关文档
 
 - M4-T5 验证方案：`docs/M4-T5_VERIFICATION.md`
-- M4-T6 验证方案：`docs/M4-T6_VERIFICATION.md`
+- M5-T1 户外实测方案：`docs/M5-T1_OUTDOOR_TEST_PLAN.md`
 - 任务指派：`.skill/TASKS.md`
 - 进度跟踪：`docs/PROGRESS_TRACKING.md`

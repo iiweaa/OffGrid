@@ -128,13 +128,6 @@ record_state "bc3"
 screenshot "$DEV_A" "bc3"
 screenshot "$DEV_B" "bc3"
 
-prompt "BC-4: 省电模式通话
-Settings → Power → 开启 Power saving mode
-按 BC-1 建立通话，持续 3 分钟，确认音质可接受、Neighbors 正常刷新。"
-record_state "bc4"
-screenshot "$DEV_A" "bc4"
-screenshot "$DEV_B" "bc4"
-
 prompt "BC-5: 长时间稳定性
 按 BC-1 建立通话，保持 15 分钟。
 观察是否有 ANR/Crash/断连。"

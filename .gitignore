@@ -26,3 +26,9 @@ captures/
 # Local test / debug logs
 logs/
 .logs/
+
+# Release signing secrets
+*.keystore
+*.jks
+keystore.properties
+

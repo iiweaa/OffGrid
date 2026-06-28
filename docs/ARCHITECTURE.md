@@ -190,7 +190,7 @@ A 与 D 超出直连范围，B、C 同时作为 Client 与 Group Owner，
 
 #### 5.2.1 Audio Engine
 - **AudioRecord**：16 kHz / 16-bit / 单声道，20ms 采样周期
-- **Opus 编码**：普通模式 24 kbps，省电模式 12 kbps；复杂度 5 / 3
+- **Opus 编码**：24 kbps，复杂度 5
 - **AudioTrack**：输出到当前音频设备（扬声器 / 有线耳机 / 蓝牙耳机，由 `AudioRouter` 切换）
 - **VAD / Jitter Buffer / 软件 AEC**：尚未实现，列为后续优化
 
@@ -221,7 +221,7 @@ A 与 D 超出直连范围，B、C 同时作为 Client 与 Group Owner，
 - **会话管理**：语音会话无需显式建立，开机即默认加入群组通话；未来可支持私密频道
 
 #### 5.2.5 Location Engine
-- **位置获取**：`LocationManager`（GPS + network provider），默认 1 秒刷新一次；省电模式下延长至 5 秒
+- **位置获取**：`LocationManager`（GPS + network provider），默认 1 秒刷新一次
 - **广播**：将 WGS-84 坐标打包进 LOCATION 包，通过 UDP 广播
 - **相对计算**：接收方使用 Haversine 公式计算距离，用方位角公式计算相对方位
 - **UI 显示**：罗盘式界面，显示队友方向与距离
@@ -385,8 +385,8 @@ interface LocationEngine {
 ### ADR-003：使用 Opus 语音编解码
 - **决策**：采用 Opus 16-24 kbps 编码。
 - **理由**：低码率、低延迟、抗丢包，适合 mesh 网络。
-- **实现**：M1-T4 已集成 `com.github.martoreto:opuscodec:v1.2.1.2`（JitPack）作为临时方案，实测 16 kHz/单声道/20 ms 帧、24 kbps 配置下，录制→编码→解码→播放端到端平均延迟约 **20 ms**，满足 < 200 ms 目标。
-- **风险**：该 AAR 未提供 `arm64-v8a` 原生库，依赖设备 32-bit 兼容模式；且上游未声明 LICENSE。M2 阶段应评估替换为自编译 libopus + JNI 或带 arm64 的合规库。
+- **实现**：M5-T3-2 已将 Opus 方案替换为自编译 Xiph libopus v1.4 + JNI，封装为 `com.offgrid.app.audio.opus.OpusEncoder` / `OpusDecoder`。APK 同时打包 `arm64-v8a` 与 `armeabi-v7a` 的 `libopus_jni.so`，16 kHz/单声道/20 ms 帧、24 kbps 配置保持不变，预期端到端编解码延迟仍满足 < 200 ms 目标。
+- **历史**：M1-T4 曾临时使用 `com.github.martoreto:opuscodec:v1.2.1.2`（JitPack），因无 LICENSE 且缺少 arm64 原生库，v1.0 前已移除。详见 `docs/M5-T3_OPUS_REPLACEMENT.md`。
 
 ### ADR-004：使用 IPv4 私有地址作为主要传输地址
 - **决策**：节点间通信默认使用 Android Wi-Fi Direct 分配的 IPv4 私有地址（192.168.49.x），IPv6 link-local 仅作为可选回退。
@@ -427,7 +427,7 @@ interface LocationEngine {
 | 位置获取与相对方位 | `link/location/LocationEngine.kt`、`PeerScreen.kt` | ✅ 已实现 |
 | 前台服务与后台保活 | `service/VoiceService.kt`、`service/keepalive/KeepAliveHelper.kt` | ✅ 已实现 |
 | 音频路由与蓝牙按键 | `audio/router/AudioRouter.kt`、`audio/media/MediaButtonHandler.kt` | ✅ 已实现 |
-| 省电模式 | `power/PowerSavingConfig.kt`、`audio/AudioEngine.kt`、`link/location/LocationEngine.kt` | ✅ 已实现 |
+| 省电模式 | `power/PowerSavingConfig.kt`、`audio/AudioEngine.kt`、`link/location/LocationEngine.kt` | ❌ 已从产品需求中删除，代码保留但不再维护 |
 | 多跳路由转发 | — | ⏳ 未实现（受 AP-STA 并发限制，远期扩展） |
 | 语音加密 | — | ⏳ 未实现 |
 | 持久化数据 / Room | — | ⏳ 未实现（当前使用 SharedPreferences） |

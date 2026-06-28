@@ -7,9 +7,10 @@
 
 ## 当前活跃任务
 
-- **M4-T5 / M4-T5-VERIFY**：手动网络配置 + 真机网络验证
-- **M4-T6 / M4-T6-VERIFY**：省电模式 + 真机功耗验证
-- **M4-T7**：开发文档完善
+- ~~**M5-T1 / M5-T2**：户外实测方案与执行~~（已取消）
+- **M5-T3-1**：Opus 依赖许可合规审查（`pro-general-pm`）→ **等待 review**
+- **M5-T3-2**：arm64 Opus 原生库替换评估与实施（待 `M5-T3-1` 验收后由 `pro-android-app` / `pro-c-cpp` 执行）
+- **M5-T4**：发布 v1.0 Release（待 `M5-T3-1` / `M5-T3-2` 完成后启动）
 
 ---
 
@@ -22,7 +23,8 @@
 | 开发任务 | 验证任务 | 验证 Skill | 验证文档 |
 |----------|----------|------------|----------|
 | M4-T5 | M4-T5-VERIFY | `pro-android-system-test` | `docs/M4-T5_VERIFICATION.md` |
-| M4-T6 | M4-T6-VERIFY | `pro-android-system-test` | `docs/M4-T6_VERIFICATION.md` |
+
+> M4-T6 省电模式已按产品决策从产品需求中删除，对应验证任务 M4-T6-VERIFY 同步取消。
 
 ### 2. 验证任务独立性要求
 

@@ -13,21 +13,15 @@
 
 ## 当前任务
 
-- **M4-T5-FIX**：修复 Auto 模式 Group 断连死锁
-  - 文档：`docs/BUG_M4-T5_AUTO_MODE_GROUP_DROP.md`
-  - 目标：Auto 模式可稳定建组并恢复重连，TC-3 成功率 ≥ 2/3
-  - 动作：修改 `WifiDirectConnector.kt`，增加连接丢失检测、取消 stale job、Auto 竞态缓解
-  - 状态：代码完成，`./gradlew clean build` 通过，待 `pro-android-system-test` 复验
-
-- **M4-T7**：完善开发文档
-  - 文档：`docs/DEVELOPER_GUIDE.md`
-  - 目标：新贡献者可独立构建
-  - 动作：技术审阅、补充架构细节与调试技巧
+- **M5-T3-2**：arm64 Opus 原生库替换评估与实施（本周进行）
+  - 文档：`docs/M5-T3_OPUS_REPLACEMENT.md`
+  - 依赖：M5-T3-1
+  - 目标：方案已输出，待 NDK 环境就绪后实施替换与真机验证
 
 ## 历史参考
 
 - M4-T5 已完成：`docs/M4-T5_MANUAL_NETWORK_CONFIG.md`，代码 `9d4a5ee`
-- M4-T6 代码已完成：`docs/M4-T6_POWER_SAVING.md`，代码 `81cce23`
+- M4-T6 省电模式：**已从产品需求中删除**，代码 `81cce23` 保留但不再维护
 
 ## 强制检查
 

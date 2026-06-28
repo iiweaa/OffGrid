@@ -116,24 +116,23 @@
 | M4-T3 | 蓝牙耳机按键控制 | Android Dev | 已完成 | M4-T2 | 按键响应正确 | MediaButtonHandler：短按静音/长按挂断；CallScreen 增加静音按钮 |
 | M4-T4 | UI/UX 页面实现 | Designer / Android Dev | 已完成 | M3.5-T6 | 设计稿完整实现，clean build 通过 | 底部导航 Home/Call/Peers/Settings；Onboarding 三页引导；主题切换；配色按 DESIGN_SYSTEM.md 实现 |
 | M4-T4-UI | 重构 Wi-Fi Direct Test 页面 | Android Dev / Designer | 已完成 | M4-T4, M2-T4 | 页面符合设计系统；状态清晰、操作分区、日志可折叠 | 已重命名为 Direct Connection Test；一加 11 / 华为 Mate 30 Pro 5G 真机验证通过；代码已 push 到 origin/main |
-| M4-T5 | 手动网络配置入口 | `pro-android-app` | 等待 review | M3-T3 | 可手动选择 GO/Client | 代码已 push（`9d4a5ee`），真机验证拆分为 M4-T5-VERIFY |
+| **M4-T5** | **手动网络配置入口** | **`pro-android-app`** | **已完成** | **M3-T3** | **可手动选择 GO/Client** | **代码已 push（`9d4a5ee`），M4-T5-VERIFY 全部通过** |
 | M4-T5-FIX | 修复 Auto 模式 Group 断连死锁 | `pro-android-app` | 已完成 | M4-T5 | 按决策移除 Auto 模式，仅保留手动 GO/Client；GO 复用已有 Group 避免 BUSY | Auto 模式因 `setDeviceName()` 失效及第三方 P2P 干扰无法稳定识别对端，已删除相关代码；GO 侧增加已有 Group 复用逻辑，TC-1 复测通过 |
 | M4-T5-VERIFY | M4-T5 真机网络验证 | `pro-android-system-test` | 已完成 | M4-T5, M4-T5-FIX | 一加/华为 GO/Client 两种模式通话均正常，故障提示正确 | TC-1/TC-2/TC-3 全部通过，无 ANR/Crash；见 `docs/M4-T5_VERIFICATION.md` |
-| M4-T6 | 省电模式 | `pro-android-app` | 等待 review | M4-T1 | 省电模式耗电下降 ≥ 20% | 代码已 push（`81cce23`），功耗验证拆分为 M4-T6-VERIFY |
-| M4-T6-VERIFY | M4-T6 真机功耗验证 | `pro-android-system-test` | 已跳过 | M4-T6 | 15 分钟普通/省电耗电对比，省电 ≥ 20% | 按用户决策暂不测试，保留脚本与方案；M4-T6 代码仍待 review |
 | **M4-T7** | **完善开发文档** | **`pro-android-app`** | **已完成** | **-** | **新贡献者可独立构建** | BUILD.md / README.md / DEVELOPER_GUIDE.md / ARCHITECTURE.md 已同步当前代码；`./gradlew clean build` 通过 |
-| **M4-T8** | **Beta 版本测试** | **`pro-android-system-test`** | **已完成** | **M4-T1~T7** | **Beta 测试报告，无 P0/P1 Bug** | BC-1~BC-8 全部通过；修复蓝牙耳机音频路由问题；报告见 `docs/M4-T8_BETA_TEST_REPORT.md` |
+| **M4-T8** | **Beta 版本测试** | **`pro-android-system-test`** | **已完成** | **M4-T1~T5, M4-T7** | **Beta 测试报告，无 P0/P1 Bug** | **BC-1~BC-3, BC-5~BC-8 全部通过；BC-4 已随省电模式删除；修复蓝牙耳机音频路由问题；报告见 `docs/M4-T8_BETA_TEST_REPORT.md`** |
 
-### M5：户外实测 + 发布（第 23-26 周）
+### M5：Bug 修复、社区发布（原户外实测已取消）（第 23-26 周）
 
 | ID | 任务 | 负责人 | 状态 | 依赖 | 验收标准 | 备注 |
 |----|------|--------|------|------|----------|------|
-| M5-T1 | 户外测试方案 | PM / QA | 待办池 | M4-T8 | 方案文档化 | |
-| M5-T2 | 户外实测 | QA / PM / Android Dev | 待办池 | M5-T1 | 收集距离/延迟/续航/稳定性数据 | |
-| M5-T3 | Bug 修复与优化 | Android Dev | 待办池 | M5-T2 | P0/P1 Bug 清零 | |
-| M5-T4 | 发布 v1.0 Release | PM / Android Dev | 待办池 | M5-T3 | GitHub Release + Tag | |
-| M5-T5 | 发布推广 | PM | 待办池 | M5-T4 | 发布到技术社区 | |
-| M5-T6 | 用户反馈与 Issue 模板 | PM | 待办池 | M5-T4 | Issue 模板、讨论区开启 | |
+| **M5-T1** | **户外测试方案** | **`pro-general-pm` / `pro-android-system-test`** | **已取消** | **M4-T8** | **`docs/M5-T1_OUTDOOR_TEST_PLAN.md` 通过评审** | **按用户决策，户外测试不再执行，本方案仅作归档** |
+| M5-T2 | 户外实测 | QA / PM / Android Dev | 已取消 | M5-T1 | 收集语音距离/延迟/续航/稳定性数据；位置共享功能保留，但不作为户外实测必测项 | 按用户决策，户外测试不再执行 |
+| **M5-T3-1** | **Opus 依赖许可合规审查** | **`pro-general-pm`** | **已完成** | **M4-T8** | **输出 `docs/M5-T3_LICENSE_COMPLIANCE.md`** | **报告已完成，建议触发 M5-T3-2 替换** |
+| **M5-T3-2** | **arm64 Opus 原生库替换评估与实施** | **`pro-android-app` / `pro-c-cpp`** | **已完成** | **M5-T3-1** | **输出 `docs/M5-T3_OPUS_REPLACEMENT.md`，真机回归通过** | **替换实施完成，回归报告 `docs/M5-T3_REGRESSION_REPORT.md`** |
+| M5-T4 | 发布 v1.0 Release | PM / Android Dev | 待办池 | M5-T3-1, M5-T3-2 | GitHub Release + Tag | |
+| M5-T5 | 发布推广 | PM | 待办池 | M5-T4 | 发布到合适的技术社区/论坛 | |
+| M5-T6 | 收集首批用户反馈，建立 Issue 模板 | PM | 待办池 | M5-T4 | GitHub Issue 模板、讨论区开启 | |
 
 ---
 

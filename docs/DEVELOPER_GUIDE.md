@@ -76,7 +76,6 @@ OffGrid/
 │   ├── link/node/                   # NodeId 生成与持久化
 │   ├── link/packet/                 # Mesh 包格式与序列化
 │   ├── link/signal/                 # HELLO 心跳与信令
-│   ├── power/                       # PowerSavingConfig
 │   ├── service/                     # VoiceService、VoiceState、KeepAliveHelper
 │   ├── ui/screens/                  # Home / Call / Peers / Settings / Onboarding
 │   ├── ui/theme/                    # Theme、Color、Type、ThemePreference
@@ -96,7 +95,7 @@ OffGrid/
 - **架构**：MVVM（Screen + ViewModel + StateHolder）
 - **状态管理**：`VoiceStateHolder`、`CapabilityStateHolder` 等 StateFlow
 - **网络**：Wi-Fi Direct + UDP Socket（端口 4242）
-- **音频**：Opus 编解码（`com.github.martoreto:opuscodec`）
+- **音频**：Opus 编解码（自编译 Xiph libopus v1.4 + JNI，详见 `docs/M5-T3_OPUS_REPLACEMENT.md`）
 - **定位**：Android LocationManager（不依赖 Google Play Services）
 
 ### 4.2 通话数据流
@@ -154,7 +153,6 @@ adb logcat -s VoiceService:D AudioEngine:D LinkManager:D WifiDirectConnector:D L
 | 测试项 | 文档 |
 |--------|------|
 | M4-T5 手动网络配置三种模式 | `docs/M4-T5_MANUAL_NETWORK_CONFIG.md` 第 7 节 |
-| M4-T6 省电模式 15 分钟功耗对比 | `docs/M4-T6_POWER_SAVING.md` 第 4.5 节（当前按项目决策暂不执行，脚本保留） |
 | M3 Alpha 集成测试 | `docs/M3_ALPHA_TEST.md` |
 
 ---

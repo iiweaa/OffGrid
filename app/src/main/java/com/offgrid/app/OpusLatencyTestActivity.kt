@@ -30,8 +30,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.score.rahasak.utils.OpusDecoder
-import com.score.rahasak.utils.OpusEncoder
+import com.offgrid.app.audio.opus.OpusDecoder
+import com.offgrid.app.audio.opus.OpusEncoder
 import com.offgrid.app.ui.theme.OffGridTheme
 import java.nio.ByteBuffer
 import java.nio.ByteOrder

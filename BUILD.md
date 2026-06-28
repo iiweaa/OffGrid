@@ -5,6 +5,8 @@
 - Android Studio Hedgehog (2023.1.1) 或更高版本
 - JDK 17
 - Android SDK API 34 / build-tools 34.0.0
+- Android NDK（推荐 25.x 或 26.x）
+- CMake 3.22.1+
 - 至少两台 Android 12+ 真机（用于 Wi-Fi Direct 直连语音测试）
 
 ## 本地构建
@@ -53,8 +55,6 @@ app/src/main/java/com/offgrid/app/
 │   ├── packet/                     # Mesh 包格式与序列化
 │   ├── signal/                     # HELLO 心跳与信令
 │   └── wifidirect/                 # NetworkRole/NetworkConfig/WifiDirectConnector
-├── power/
-│   └── PowerSavingConfig.kt        # 省电模式配置
 ├── service/
 │   ├── VoiceService.kt             # 前台语音服务
 │   ├── VoiceState.kt               # 通话状态与 VoiceStateHolder
@@ -94,4 +94,6 @@ GitHub Actions 会在每次 push 和 PR 时自动运行 `./gradlew build`。
 
 - 检查 JDK 版本是否为 17
 - 检查 Android SDK 是否包含 API 34
+- 检查 Android SDK 是否已安装 NDK 与 CMake 3.22.1+
+- 确认 `app/src/main/cpp/opus/` 目录包含完整的 libopus 源码
 - 尝试 `./gradlew clean build`

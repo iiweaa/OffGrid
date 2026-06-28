@@ -1,5 +1,6 @@
 #!/bin/bash
 # M4-T6 真机功耗验证执行脚本
+# ⚠️ 状态：已随 M4-T6 省电模式从产品需求中删除而废弃，不再执行。
 # 用法：bash scripts/run_m4t6_verification.sh
 
 set -euo pipefail
