@@ -35,32 +35,48 @@ cd OffGrid
 
 ```
 app/src/main/java/com/offgrid/app/
-├── MainActivity.kt                 # 主入口与 Compose Navigation
+├── MainActivity.kt                 # 主入口与底部导航
 ├── OffGridApplication.kt           # Application 类
-├── WifiDirectTestActivity.kt       # Wi-Fi Direct 建组/连接测试
+├── WifiDirectTestActivity.kt       # Wi-Fi Direct 建组/连接测试（Direct Connection Test）
 ├── OpusLatencyTestActivity.kt      # Opus 纯编解码延迟测试
 ├── audio/
-│   └── AudioEngine.kt              # AudioRecord / Opus / AudioTrack
+│   ├── AudioEngine.kt              # 采集、Opus 编解码、播放
+│   ├── media/MediaButtonHandler.kt # 蓝牙耳机按键处理
+│   └── router/AudioRouter.kt       # 音频设备切换监听
 ├── link/
-│   └── LinkManager.kt              # UDP 发现与收发
+│   ├── LinkManager.kt              # UDP Socket 发现与收发
+│   ├── CapabilityStateHolder.kt    # 设备 AP-STA 并发能力状态
+│   ├── WifiDirectCapability*.kt    # 并发能力检测
+│   ├── location/                   # GPS 获取、相对方位/距离计算、位置广播
+│   ├── neighbor/                   # 邻居表与老化逻辑
+│   ├── node/                       # NodeId 生成与持久化
+│   ├── packet/                     # Mesh 包格式与序列化
+│   ├── signal/                     # HELLO 心跳与信令
+│   └── wifidirect/                 # NetworkRole/NetworkConfig/WifiDirectConnector
+├── power/
+│   └── PowerSavingConfig.kt        # 省电模式配置
 ├── service/
 │   ├── VoiceService.kt             # 前台语音服务
-│   └── VoiceState.kt               # 通话状态与 VoiceStateHolder
-└── ui/screens/
-    ├── HomeScreen.kt               # 首页入口
-    ├── CallScreen.kt               # 通话界面
-    └── CallViewModel.kt            # 通话 ViewModel
+│   ├── VoiceState.kt               # 通话状态与 VoiceStateHolder
+│   └── keepalive/KeepAliveHelper.kt# 后台保活辅助
+├── ui/screens/                     # Home / Call / Peers / Settings / Onboarding
+├── ui/theme/                       # 主题、颜色、字体、深色模式
+└── util/
+    └── BatteryOptimizationHelper.kt# 电池优化白名单引导
 ```
 
 ## MVP 真机测试流程
 
 1. 在两台手机上分别安装并启动 App。
-2. 进入 **Wi-Fi Direct Test**：
-   - 设备 A 点击 **Create Group** 成为 Group Owner。
-   - 设备 B 点击 **Discover** → **List Peers**，找到设备 A 后点击 **Connect**。
-   - 在设备 A 的系统弹窗中点击**接受**。
-3. 返回首页，进入 **Start Direct Call**，两台设备分别点击 **Start Call**。
-4. 等待界面显示 `Peer: 192.168.49.x` 后进行双向通话。
+2. 在两台设备上授予：位置、附近设备、录音、通知权限。
+3. 进入 **Settings → Connection**：
+   - 设备 A 选择 **Group Owner**。
+   - 设备 B 选择 **Client**。
+4. 返回底部导航 **Call**，设备 A 点击 **Start Call** 创建 Group；
+   设备 B 点击 **Start Call** 扫描并加入该 Group。
+5. 等待界面显示邻居节点与 IP 地址（`192.168.49.x`）后进行双向通话。
+
+> 也可使用 **Direct Connection Test** 页面（开发者工具）手动创建 Group / 发现 Peer / 连接。
 
 ## CI
 

@@ -19,6 +19,9 @@ OffGrid 是一款开源 Android 应用，让徒步、骑行等户外活动团队
 - ✅ M1：Wi-Fi Direct 直连、IPv4 通信、Opus 延迟验证
 - ✅ M2：双机直连语音通话
 - ✅ M3：双机稳定 + 位置共享 + 多跳预备（详见 `docs/M3_ALPHA_TEST.md`）
+- ✅ M4-T5：手动网络配置入口（Group Owner / Client）与故障排查提示（详见 `docs/M4-T5_MANUAL_NETWORK_CONFIG.md`）
+- ✅ M4-T6：省电模式（降低语音码率与定位频率，详见 `docs/M4-T6_POWER_SAVING.md`）
+- 🚧 M4-T7：完善开发者文档（进行中）
 
 ## 技术栈
 
@@ -35,10 +38,16 @@ OffGrid 是一款开源 Android 应用，让徒步、骑行等户外活动团队
 
 ## 文档
 
+- [构建指南](./BUILD.md)
+- [开发者指南](./docs/DEVELOPER_GUIDE.md)
+- [贡献指南](./CONTRIBUTING.md)
 - [架构设计](./docs/ARCHITECTURE.md)
 - [项目计划](./docs/PROJECT_PLAN.md)
+- [PRD](./docs/PRD.md)
 - [M2 语音管道](./docs/M2_VOICE_PIPELINE.md)
 - [M3 Alpha 测试](./docs/M3_ALPHA_TEST.md)
+- [M4-T5 手动网络配置](./docs/M4-T5_MANUAL_NETWORK_CONFIG.md)
+- [M4-T6 省电模式](./docs/M4-T6_POWER_SAVING.md)
 
 ## 贡献
 

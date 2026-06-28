@@ -65,13 +65,15 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 OffGrid/
 ├── app/src/main/java/com/offgrid/app/
 │   ├── MainActivity.kt              # 应用入口 + 底部导航
+│   ├── OffGridApplication.kt        # Application 类
 │   ├── WifiDirectTestActivity.kt    # Direct Connection Test 工具页
 │   ├── OpusLatencyTestActivity.kt   # Opus 延迟测试页
 │   ├── audio/                       # AudioEngine、AudioRouter、MediaButtonHandler
-│   ├── link/                        # LinkManager、NeighborTable、SignalingEngine、LocationEngine
+│   ├── link/                        # LinkManager、CapabilityStateHolder、并发能力检测
 │   ├── link/wifidirect/             # NetworkRole / NetworkConfig / WifiDirectConnector
 │   ├── link/location/               # 位置获取与 Haversine 计算
 │   ├── link/neighbor/               # 邻居表与老化逻辑
+│   ├── link/node/                   # NodeId 生成与持久化
 │   ├── link/packet/                 # Mesh 包格式与序列化
 │   ├── link/signal/                 # HELLO 心跳与信令
 │   ├── power/                       # PowerSavingConfig
@@ -152,7 +154,7 @@ adb logcat -s VoiceService:D AudioEngine:D LinkManager:D WifiDirectConnector:D L
 | 测试项 | 文档 |
 |--------|------|
 | M4-T5 手动网络配置三种模式 | `docs/M4-T5_MANUAL_NETWORK_CONFIG.md` 第 7 节 |
-| M4-T6 省电模式 15 分钟功耗对比 | `docs/M4-T6_POWER_SAVING.md` 第 4.5 节 |
+| M4-T6 省电模式 15 分钟功耗对比 | `docs/M4-T6_POWER_SAVING.md` 第 4.5 节（当前按项目决策暂不执行，脚本保留） |
 | M3 Alpha 集成测试 | `docs/M3_ALPHA_TEST.md` |
 
 ---

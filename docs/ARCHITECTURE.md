@@ -170,28 +170,29 @@ A 与 D 超出直连范围，B、C 同时作为 Client 与 Group Owner，
 
 ### 5.1 模块总览
 
-| 模块 | 包名 | 职责 |
-|------|------|------|
-| UI | `ui.*` | Jetpack Compose 页面、主题、导航 |
-| ViewModel | `presentation.*` | 业务状态管理、用户交互 |
-| Foreground Service | `service.*` | 保活、权限维持、引擎生命周期 |
-| Audio Engine | `audio.*` | 采集、播放、Opus 编解码、VAD、回声消除 |
-| Mesh Link | `mesh.*` | Wi-Fi Direct 组管理、邻居发现、IPv4/IPv6 地址适配 |
-| Routing Engine | `routing.*` | 包转发、路由表、TTL/去重、多跳策略 |
-| Signaling Engine | `signaling.*` | 节点发现、心跳、会话管理、拓扑维护 |
-| Location Engine | `location.*` | GPS 获取、相对方位/距离计算、位置广播 |
-| Crypto Engine | `security.*` | 密钥生成、交换、加解密 |
-| Data | `data.*` | Repository、Room、DataStore、数据模型 |
-| Common | `common.*` | 常量、工具类、日志 |
+| 模块 | 包名 | 职责 | 当前状态 |
+|------|------|------|----------|
+| UI | `ui.*` | Jetpack Compose 页面、主题、导航 | 已实现 |
+| ViewModel | `ui.screens.*ViewModel` | 业务状态管理、用户交互 | 已实现 |
+| Foreground Service | `service.*` | 保活、权限维持、引擎生命周期 | 已实现 |
+| Audio Engine | `audio.*` | 采集、播放、Opus 编解码 | 已实现；VAD / 软件 AEC 为远期优化 |
+| Mesh Link | `link.*` | Wi-Fi Direct 组管理、UDP 邻居发现、IPv4 地址适配 | 已实现；IPv6 link-local 为可选扩展 |
+| Routing Engine | `link.LinkManager`、`link.neighbor.NeighborTable` | 包转发、TTL/去重、邻居老化 | 已实现单跳广播；多跳转发为远期扩展 |
+| Signaling Engine | `link.signal.SignalingEngine` | 节点发现、心跳、会话管理 | 已实现 |
+| Location Engine | `link.location.*` | GPS 获取、相对方位/距离计算、位置广播 | 已实现；当前使用 `LocationManager` |
+| Crypto Engine | `security.*` | 密钥生成、交换、加解密 | **未实现**；MVP 为明文传输 |
+| Data | `data.*` | Repository、Room、DataStore | **未实现**；当前使用轻量 SharedPreferences |
+| Common | `util.*`、`link.MeshConstants` | 常量、工具类、日志 | 已实现 |
+
+> 注：包名以 `app/src/main/java/com/offgrid/app/` 下的实际目录为准；架构文档中部分模块（Crypto、Data）为远期设计，当前尚未落地。
 
 ### 5.2 关键模块详细说明
 
 #### 5.2.1 Audio Engine
 - **AudioRecord**：16 kHz / 16-bit / 单声道，20ms 采样周期
-- **Opus 编码**：目标码率 16-24 kbps（户外场景可自适应到 8 kbps）
-- **VAD**：基于 WebRTC VAD 或简单能量阈值，静音时不发送语音包（可选）
-- **Jitter Buffer**：50-100ms，平滑网络抖动
-- **AudioTrack**：输出到当前音频设备（有线/蓝牙耳机/扬声器）
+- **Opus 编码**：普通模式 24 kbps，省电模式 12 kbps；复杂度 5 / 3
+- **AudioTrack**：输出到当前音频设备（扬声器 / 有线耳机 / 蓝牙耳机，由 `AudioRouter` 切换）
+- **VAD / Jitter Buffer / 软件 AEC**：尚未实现，列为后续优化
 
 #### 5.2.2 Mesh Link Layer
 - **Wi-Fi Direct Manager**：
@@ -220,8 +221,8 @@ A 与 D 超出直连范围，B、C 同时作为 Client 与 Group Owner，
 - **会话管理**：语音会话无需显式建立，开机即默认加入群组通话；未来可支持私密频道
 
 #### 5.2.5 Location Engine
-- **位置获取**：`FusedLocationProviderClient`，5 秒刷新一次
-- **广播**：将 WGS-84 坐标打包进 LOCATION 包，通过 mesh 泛洪
+- **位置获取**：`LocationManager`（GPS + network provider），默认 1 秒刷新一次；省电模式下延长至 5 秒
+- **广播**：将 WGS-84 坐标打包进 LOCATION 包，通过 UDP 广播
 - **相对计算**：接收方使用 Haversine 公式计算距离，用方位角公式计算相对方位
 - **UI 显示**：罗盘式界面，显示队友方向与距离
 
@@ -416,13 +417,27 @@ interface LocationEngine {
 
 ---
 
-## 12. 下一步工作
+## 12. 当前代码实现状态（截至 M4）
 
-1. **技术预研**：验证 Android 12+ Wi-Fi Direct 直连在本目标机型上的实际行为（已完成）。
-2. **MVP 实现**：在 Android 12+ 上实现 2-5 台手机单跳直连语音（验证 Wi-Fi Direct、IPv4 UDP 与音频通路）。
-3. **位置共享**：集成 GPS 与相对方位计算。
-4. **后台与耳机**：完善前台服务、电池优化引导、音频路由。
-5. **多跳扩展（远期）**：在实测支持 AP-STA 并发的机型上，加入受控泛洪，实现 3-5 跳中继。
+| 架构能力 | 对应代码 | 状态 |
+|----------|----------|------|
+| 单跳 Wi-Fi Direct 建组/连接 | `link/wifidirect/WifiDirectConnector.kt` | ✅ 已实现（手动 GO/Client） |
+| UDP 邻居发现与语音收发 | `link/LinkManager.kt`、`link/signal/SignalingEngine.kt` | ✅ 已实现 |
+| 邻居表与老化 | `link/neighbor/NeighborTable.kt` | ✅ 已实现 |
+| 位置获取与相对方位 | `link/location/LocationEngine.kt`、`PeerScreen.kt` | ✅ 已实现 |
+| 前台服务与后台保活 | `service/VoiceService.kt`、`service/keepalive/KeepAliveHelper.kt` | ✅ 已实现 |
+| 音频路由与蓝牙按键 | `audio/router/AudioRouter.kt`、`audio/media/MediaButtonHandler.kt` | ✅ 已实现 |
+| 省电模式 | `power/PowerSavingConfig.kt`、`audio/AudioEngine.kt`、`link/location/LocationEngine.kt` | ✅ 已实现 |
+| 多跳路由转发 | — | ⏳ 未实现（受 AP-STA 并发限制，远期扩展） |
+| 语音加密 | — | ⏳ 未实现 |
+| 持久化数据 / Room | — | ⏳ 未实现（当前使用 SharedPreferences） |
+
+## 13. 下一步工作
+
+1. **M4-T8 Beta 测试**：在更多机型与场景下验证稳定性；
+2. **M5 户外实测**：收集距离、延迟、续航、稳定性数据；
+3. **远期扩展**：在支持 AP-STA 并发的机型上实现多跳中继；
+4. **可选优化**：VAD 静音抑制、软件 AEC、语音加密。
 
 ---
 
