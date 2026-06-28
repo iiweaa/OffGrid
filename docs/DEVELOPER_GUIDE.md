@@ -69,12 +69,12 @@ OffGrid/
 │   ├── WifiDirectTestActivity.kt    # Direct Connection Test 工具页
 │   ├── OpusLatencyTestActivity.kt   # Opus 延迟测试页
 │   ├── audio/                       # AudioEngine、AudioRouter、MediaButtonHandler
-│   ├── link/                        # LinkManager、CapabilityStateHolder、并发能力检测
+│   ├── link/                        # LinkManager、CapabilityStateHolder、Wi-Fi Direct 能力检测
 │   ├── link/wifidirect/             # NetworkRole / NetworkConfig / WifiDirectConnector
 │   ├── link/location/               # 位置获取与 Haversine 计算
 │   ├── link/neighbor/               # 邻居表与老化逻辑
 │   ├── link/node/                   # NodeId 生成与持久化
-│   ├── link/packet/                 # Mesh 包格式与序列化
+│   ├── link/packet/                 # 局域网包格式与序列化
 │   ├── link/signal/                 # HELLO 心跳与信令
 │   ├── service/                     # VoiceService、VoiceState、KeepAliveHelper
 │   ├── ui/screens/                  # Home / Call / Peers / Settings / Onboarding
@@ -94,7 +94,7 @@ OffGrid/
 - **UI**：Jetpack Compose + Material3
 - **架构**：MVVM（Screen + ViewModel + StateHolder）
 - **状态管理**：`VoiceStateHolder`、`CapabilityStateHolder` 等 StateFlow
-- **网络**：Wi-Fi Direct + UDP Socket（端口 4242）
+- **网络**：Wi-Fi Direct Group Owner / Client 星型组网 + UDP Socket（端口 4242）
 - **音频**：Opus 编解码（自编译 Xiph libopus v1.4 + JNI，详见 `docs/M5-T3_OPUS_REPLACEMENT.md`）
 - **定位**：Android LocationManager（不依赖 Google Play Services）
 
@@ -135,8 +135,9 @@ adb logcat -s VoiceService:D AudioEngine:D LinkManager:D WifiDirectConnector:D L
 - 使用 **Direct Connection Test** 页面手动创建 Group / 发现 Peer / 连接；
 - 若两台手机无法互通，先确认：
   1. 位置权限与附近设备权限已授予；
-  2. 仅一台作为 Group Owner；
-  3. 两台设备连接同一 Wi-Fi Direct Group 后处于 `192.168.49.x` 子网。
+  2. 固定一台作为 Group Owner（热点），其余作为 Client 接入；
+  3. 所有设备连接同一 Wi-Fi Direct Group 后处于 `192.168.49.x` 子网；
+  4. 所有 Client 必须在 Group Owner 热点覆盖范围内（不支持多跳）。
 
 ---
 

@@ -63,8 +63,8 @@
 | ID | 任务 | 负责人 | 状态 | 依赖 | 验收标准 | 备注 |
 |----|------|--------|------|------|----------|------|
 | M1-T1 | 搭建开发环境 | Android Dev | 待办池 | - | 仓库可 clone，项目可编译 | |
-| M1-T2 | 验证 Wi-Fi Direct AP-STA 并发 | Android Dev / Architect | 待办池 | M1-T1 | 目标机型实现 GO+Client 并发 | |
-| M1-T3 | 验证 IPv6 link-local 通信 | Android Dev | 待办池 | M1-T2 | 两机通过 IPv6 link-local ping 通 | |
+| M1-T2 | 验证 Wi-Fi Direct Group Owner / Client 星型组网 | Android Dev / Architect | 待办池 | M1-T1 | 目标机型可稳定作为 GO/Client 建组并互通 | |
+| M1-T3 | 验证 IPv4 私有地址通信 | Android Dev | 待办池 | M1-T2 | 两机通过 192.168.49.x ping 通 | |
 | M1-T4 | 验证 Opus 编解码延迟 | Android Dev | 待办池 | M1-T1 | 端到端延迟 < 200ms | |
 | M1-T5 | 输出《技术预研报告》 | Architect / PM | 待办池 | M1-T2~T4 | 报告通过评审 | |
 
@@ -81,20 +81,20 @@
 | M2-T7 | LICENSE / CI 配置 | PM / Android Dev | 待办池 | - | CI 构建通过 | |
 | M2-T8 | MVP 实机测试与 Demo | QA / PM | 待办池 | M2-T6, M2-T7 | 测试报告 + Demo | |
 
-### M3：双机稳定 + 位置共享 + 多跳预备（第 7-12 周）
+### M3：多 Client 稳定接入 + 位置共享（第 7-12 周）
 
-> 说明：当前目标机型（一加 11、华为/荣耀）实测不支持 Wi-Fi Direct AP-STA 并发，无法构成链式多跳。M3 修订为把双机体验做扎实，并保留多跳扩展结构。
+> 说明：PRD v1.2 明确采用星型单跳拓扑（一台 Group Owner + 多台 Client）。M3 聚焦把多 Client 接入体验做扎实，并完成位置共享。
 
 | ID | 任务 | 负责人 | 状态 | 依赖 | 验收标准 | 备注 |
 |----|------|--------|------|------|----------|------|
-| M3-T1 | 运行时检测 AP-STA 并发能力并提示用户 | Android Dev | 已完成 | M2-T5 | 启动时显示「当前设备支持/不支持多跳中继」 | 反射检测 + 首页状态卡 + Wi-Fi Direct Test 探针 |
+| M3-T1 | 手动选择 Group Owner / Client 角色并持久化 | Android Dev | 已完成 | M2-T5 | 用户在设置中选择角色，重启后保留 | Settings → Connection 角色选择 + DataStore |
 | M3-T2 | Mesh 包格式 + NodeID + 基础序列化 | Android Dev / Architect | 已完成 | M2-T5 | 包结构符合架构文档，单测通过 | Packet/PacketType/PacketSerializer + NodeId/NodeIdStore |
-| M3-T3 | 重构 LinkManager → NeighborTable | Android Dev | 已完成 | M3-T2 | 双机仍能互通，邻居表显示对端 NodeID、IP、LastSeen | 已接入 Packet 序列化；CallScreen 显示邻居列表 |
+| M3-T3 | 重构 LinkManager → NeighborTable | Android Dev | 已完成 | M3-T2 | 多 Client 仍能互通，邻居表显示对端 NodeID、IP、LastSeen | 已接入 Packet 序列化；CallScreen 显示邻居列表 |
 | M3-T4 | Signaling Engine：HELLO 心跳与邻居老化 | Android Dev | 已完成 | M3-T3 | 断开后 10 秒内标记离线，重连后恢复 | SignalingEngine 独立调度；NeighborTable 返回移除节点；单测覆盖连接/超时/重连 |
 | M3-T5 | Location Engine（GPS 获取、位置广播） | Android Dev | 已完成 | M3-T2 | 双机相距 >10m 时，距离误差 <30% | LocationEngine + LocationPayload；已接入 VoiceService 与 CallScreen 状态 |
 | M3-T6 | 相对方位/距离计算与 UI 罗盘页 | Android Dev / Designer | 已完成 | M3-T5 | 界面正确显示队友方位与距离，刷新 ≥ 1 次/5s | PeerScreen + Canvas 罗盘 + PeerList；Haversine/ bearing 单测 |
 | M3-T7 | 后台保活与音频路由稳定性优化 | Android Dev | 已完成 | M3-T4 | 锁屏 2 分钟内仍可接收语音/位置 | WakeLock + WiFiLock + AudioRouter + 电池优化白名单入口 |
-| M3-T8 | 双机 Alpha 集成测试与文档更新 | QA / PM | 已完成 | M3-T6, M3-T7 | 两台设备通话+位置共享 15 分钟无崩溃 | 已输出 M3_ALPHA_TEST.md 测试方案；实机 15 分钟测试待执行 |
+| M3-T8 | 多 Client Alpha 集成测试与文档更新 | QA / PM | 已完成 | M3-T6, M3-T7 | 3 台设备接入同一 GO，通话+位置共享 15 分钟无崩溃 | 已输出 M3_ALPHA_TEST.md 测试方案；实机 15 分钟测试待执行 |
 
 ### M3.5：UI/UX 设计冲刺（第 13-14 周）
 
@@ -214,10 +214,10 @@
 
 | 风险 ID | 风险描述 | 影响 | 概率 | 应对策略 | 状态 | 负责人 |
 |--------|----------|------|------|----------|------|--------|
-| R1 | 目标机型不支持 AP-STA 并发 | 高 | 中 | M1 优先验证；不支持时降级为单跳并提示用户 | 监控 | Android Dev |
+| R1 | 目标机型 Wi-Fi Direct GO/Client 行为差异 | 高 | 中 | M1 优先验证；建立兼容设备清单 | 监控 | Android Dev |
 | R2 | Wi-Fi Direct 品牌差异 | 高 | 高 | 建立三星/小米/Pixel 测试清单 | 监控 | QA |
 | R3 | 后台保活被系统杀死 | 高 | 高 | 前台服务 + 电池白名单引导 + 持续静音 | 监控 | Android Dev |
-| R4 | 多跳语音延迟超过 1s | 中 | 中 | 优化 Opus 帧长、限制最大跳数、VAD | 监控 | Android Dev |
+| R4 | Group Owner 设备耗电过快或离开网络 | 中 | 中 | UI 提示电量；支持手动切换 Group Owner；建议用户携带充电宝 | 监控 | Android Dev |
 | R5 | 蓝牙耳机路由异常 | 中 | 中 | AudioManager 监听设备变化 | 监控 | Android Dev |
 | R6 | 单人项目进度延期 | 中 | 高 | 每周 Review，削减 P1/P2 保 P0 | 监控 | PM |
 | R7 | 开源社区反馈冷清 | 低 | 中 | 完善文档降低贡献门槛 | 监控 | PM |

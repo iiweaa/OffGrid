@@ -36,7 +36,7 @@
 │     [Wifi Icon Large]       │
 │                             │
 │   使用 Wi-Fi Direct 组网    │
-│   无需路由器，两台手机直连  │
+│   一台手机当热点，其余接入  │
 │                             │
 │   [    下一步    ]          │
 │                             │
@@ -67,7 +67,7 @@
 ```
 ┌─────────────────────────────┐
 │  OffGrid                    │ headlineLarge
-│  离线网状语音通讯            │ bodyLarge
+│  离线语音通讯                │ bodyLarge
 ├─────────────────────────────┤
 │  [Capability Status Card]   │
 ├─────────────────────────────┤
@@ -89,8 +89,9 @@
 
 ### 能力状态卡
 
-- 支持多跳：`primaryContainer` 背景，绿色图标 + 「多跳：可用」。
-- 不支持/未知：`secondaryContainer` 或 `errorContainer` 背景，提示「多跳：未知/不支持」。
+- 已选择 Group Owner：`primaryContainer` 背景，绿色图标 + 「角色：热点」。
+- 已选择 Client：`primaryContainer` 背景，蓝色图标 + 「角色：接入」。
+- 未选择角色 / 未知：`secondaryContainer` 背景，提示「请在设置中选择组网角色」。
 
 ---
 
@@ -251,7 +252,7 @@
 ### 9.1 设计原则
 
 - **一页一意图**：顶部看状态，中部操作，下部看结果。
-- **状态可视化**：用卡片+颜色+文字共同表达 Wi-Fi Direct 与并发能力状态。
+- **状态可视化**：用卡片+颜色+文字共同表达 Wi-Fi Direct 与当前组网角色状态。
 - **操作可预测**：按钮按功能分组，禁用状态给出明确原因（或置灰 + 辅助说明）。
 - **日志可折叠**：默认收起，避免开发者工具页一屏信息过载。
 
@@ -265,7 +266,7 @@
 │  ┌─────────────────────────────┐    │
 │  │  Wi-Fi Direct    Enabled    │    │  bodyMedium
 │  │  Group           Idle       │    │
-│  │  Multi-hop       Unknown    │    │
+│  │  Role            Unknown    │    │
 │  └─────────────────────────────┘    │  surfaceVariant, 16dp radius
 ├─────────────────────────────────────┤
 │  Actions                            │  titleMedium
@@ -275,7 +276,6 @@
 │  │                             │    │
 │  │  [Discover]  [List Peers]   │    │  OutlinedButton Row
 │  │                             │    │
-│  │  [ Probe AP-STA concurrency]│    │  enabled only when client
 │  └─────────────────────────────┘    │  surfaceVariant, 16dp radius
 ├─────────────────────────────────────┤
 │  Group Info                         │  titleMedium (conditional)
@@ -308,8 +308,8 @@
 - **内边距**：`16dp`。
 - **行布局**：左侧固定宽度标签（`onSurfaceVariant`），右侧状态值（`bodyLarge`）。
 - **状态值颜色**：
-  - `Enabled` / `Group Owner` / `Client` / `Supported` → `primary`
-  - `Disabled` / `Failed` / `Unsupported` → `error`
+  - `Enabled` / `Group Owner` / `Client` → `primary`
+  - `Disabled` / `Failed` → `error`
   - `Idle` / `Unknown` / `Scanning` → `onSurfaceVariant`
 - **辅助图标**：状态行前可增加 24dp 图标（可选），避免纯颜色表达状态。
 
@@ -319,9 +319,7 @@
 - **按钮分组**：
   1. 组管理：`Create Group`（Primary）在上，`Remove Group`（Outlined）在下。
   2. 发现：`Discover` 与 `List Peers` 并排，各占一半宽度。
-  3. 并发探测：`Probe AP-STA concurrency` 单独一行。
 - **禁用规则**：
-  - `Probe AP-STA concurrency` 仅在 `groupFormed == true && isGroupOwner == false` 时可用；否则禁用，并在按钮下方显示 `bodySmall` 提示：「需先作为 Client 加入 Group」。
   - `Create Group` 在已有 Group 时建议禁用或提示先 Remove。
 - **加载/进行态**：异步操作按钮显示为禁用并替换文字为「Creating…」「Scanning…」「Connecting…」。
 

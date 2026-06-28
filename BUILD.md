@@ -47,8 +47,8 @@ app/src/main/java/com/offgrid/app/
 │   └── router/AudioRouter.kt       # 音频设备切换监听
 ├── link/
 │   ├── LinkManager.kt              # UDP Socket 发现与收发
-│   ├── CapabilityStateHolder.kt    # 设备 AP-STA 并发能力状态
-│   ├── WifiDirectCapability*.kt    # 并发能力检测
+│   ├── CapabilityStateHolder.kt    # 设备能力状态（保留但多跳检测已不再维护）
+│   ├── WifiDirectCapability*.kt    # Wi-Fi Direct 能力检测工具
 │   ├── location/                   # GPS 获取、相对方位/距离计算、位置广播
 │   ├── neighbor/                   # 邻居表与老化逻辑
 │   ├── node/                       # NodeId 生成与持久化

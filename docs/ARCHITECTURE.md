@@ -2,7 +2,7 @@
 
 > 架构设计文档 v1.3
 > 设计：pro-general-architect（构师）
-> 输入：`docs/PRD.md` v1.1
+> 输入：`docs/PRD.md` v1.2
 
 ---
 
@@ -13,7 +13,7 @@
 | 维度 | 约束 |
 |------|------|
 | 平台 | **Android 12+** |
-| 组网 | **Wi-Fi Direct 唯一组网方式**（不含蓝牙组网） |
+| 组网 | **星型组网：一台手机作为热点（Group Owner / SoftAP），其他手机接入**；不含蓝牙组网 |
 | 语音 | **全双工** 实时群聊 |
 | 位置 | 相对方位 + 距离（无需地图坐标） |
 | 开源 | **MIT** 协议 |
@@ -21,9 +21,9 @@
 | 周期 | 3-6 个月 |
 
 ### 1.2 关键非功能目标
-- 单跳距离 ≥ 100m（开阔地 Wi-Fi Direct）
-- 端到端延迟：单跳 < 300ms
-- **MVP 支持单跳直连；多跳中继作为远期目标，依赖设备 AP-STA 并发能力**
+- 热点覆盖半径 ≥ 30m（开阔地，受手机天线影响）
+- 端到端延迟 < 300ms
+- **MVP 仅支持星型单跳，多跳中继已从需求范围移除**
 - 后台持续运行，锁屏仍可接收语音
 - 纯离线、无服务器、无账号
 
@@ -31,35 +31,34 @@
 
 ## 2. 架构目标与原则
 
-1. **去中心化**：无单点故障，任一节点退出不影响整体网络（在拓扑允许范围内）。
-2. **低开销**：语音码率控制在 16-32 kbps，控制面消息极简。
-3. **可演进**：MVP 先支持受控泛洪，后续可平滑升级为链路状态路由。
-4. **Android 原生**：尽量使用 Android 官方 API，降低兼容性与 root 依赖。
-5. **MIT 开源**：所有依赖与自研代码需兼容 MIT 或宽松协议。
+1. **低开销**：语音码率控制在 16-32 kbps，控制面消息极简。
+2. **Android 原生**：尽量使用 Android 官方 API，降低兼容性与 root 依赖。
+3. **MIT 开源**：所有依赖与自研代码需兼容 MIT 或宽松协议。
+4. **简单可靠**：星型拓扑降低组网和路由复杂度，优先保证 2-5 人小队稳定通话。
 
 ---
 
 ## 3. 备选方案对比
 
-### 方案 A：Wi-Fi Direct + 自定义 UDP Mesh（推荐）
-基于 Android Wi-Fi Direct 建立邻居链路，使用 **IPv4 私有地址（192.168.49.x）** 作为默认传输地址，并保留 IPv6 link-local 作为可选回退，自定义轻量级路由与语音传输协议。
+### 方案 A：Wi-Fi Direct Group Owner / Client 星型组网 + UDP（推荐）
+基于 Android Wi-Fi Direct 建立 Group Owner（热点）与 Client 的星型局域网，使用 **IPv4 私有地址（192.168.49.x）** 作为默认传输地址，Client 间通过 Group Owner 转发，自定义轻量级语音传输协议。
 
 | 维度 | 评估 |
 |------|------|
-| 优点 | 完全自主可控；针对语音场景优化；无外部重型依赖；多跳可扩展（受硬件并发能力限制） |
-| 缺点 | 需自行处理 Wi-Fi Direct 组管理、IP 冲突、后台保活等复杂逻辑；MVP 先落地单跳 |
-| 成熟度 | 有 Meshrabiya、Serval、Qaul 等可参考 |
+| 优点 | 完全自主可控；针对语音场景优化；无外部重型依赖；与现有手动 GO/Client 实现一致 |
+| 缺点 | 需自行处理 Wi-Fi Direct 组管理、IP 冲突、后台保活等逻辑；所有 Client 必须在 GO 覆盖范围内 |
+| 成熟度 | 有 Serval、Qaul 等可参考 |
 | 适用性 | ⭐⭐⭐⭐⭐ 高度匹配 |
 
-### 方案 B：WebRTC over Mesh Underlay
-底层仍用 Wi-Fi Direct 建立 mesh 链路，上层跑 WebRTC PeerConnection 实现语音。
+### 方案 B：WebRTC over Local Hotspot
+底层使用本地热点建立局域网，上层跑 WebRTC PeerConnection 实现语音。
 
 | 维度 | 评估 |
 |------|------|
 | 优点 | 音频处理（Opus、回声消除、抖动缓冲）成熟；加密内置 |
-| 缺点 | WebRTC 初始握手重，多跳转发 WebRTC 数据包复杂；原生 Android 集成体积大；全双工群聊需 SFU/MCU 逻辑，与去中心化冲突 |
-| 成熟度 | WebRTC 成熟，但“多跳 WebRTC mesh”非典型用法 |
-| 适用性 | ⭐⭐⭐ 适合直连 1:1，不适合本项目多跳群聊 |
+| 缺点 | WebRTC 初始握手重；原生 Android 集成体积大；全双工群聊需 SFU/MCU 逻辑 |
+| 成熟度 | WebRTC 成熟，但“无服务器星型群聊”非典型用法 |
+| 适用性 | ⭐⭐⭐ 适合直连 1:1，不适合本项目多人星型群聊 |
 
 ### 方案 C：Local Hotspot + BATMAN-Adv
 利用 Android 本地热点，运行 Linux BATMAN-Adv 内核模块做 mesh 路由。
@@ -67,7 +66,7 @@
 | 维度 | 评估 |
 |------|------|
 | 优点 | BATMAN-Adv 是成熟 mesh 路由协议 |
-| 缺点 | **需要 root 或自定义 ROM**；Android 12+ 热点 API 仍受限；与项目目标冲突 |
+| 缺点 | **需要 root 或自定义 ROM**；Android 12+ 热点 API 仍受限；与本项目目标冲突 |
 | 成熟度 | 高，但不可行 |
 | 适用性 | ⭐ 不推荐 |
 
@@ -77,12 +76,12 @@
 | 维度 | 评估 |
 |------|------|
 | 优点 | 已解决 Wi-Fi Direct mesh、IPv6 link-local、AP-STA 并发等底层难题 |
-| 缺点 | 库相对小众，文档与社区活跃度有限；协议与接口未必完全匹配语音场景 |
+| 缺点 | 库相对小众，文档与社区活跃度有限；协议与接口未必完全匹配语音场景；多跳能力与本项目当前星型需求不符 |
 | 成熟度 | 中等 |
-| 适用性 | ⭐⭐⭐⭐ 可作为底层参考或集成候选 |
+| 适用性 | ⭐⭐⭐ 可作为底层参考，但不直接集成 |
 
 ### 推荐结论
-**推荐方案 A（自定义 UDP Mesh）作为主体架构**，MVP 先实现 **单跳直连**，链路层以 **IPv4 私有地址** 为主；多跳与 IPv6 link-local 作为后续扩展，参考 **Meshrabiya** 的 AP-STA 并发思路；**WebRTC 与 BATMAN-Adv 不推荐用于首期**。
+**推荐方案 A（Wi-Fi Direct GO/Client 星型组网 + UDP）作为主体架构**，MVP 仅实现 **单跳星型**；**WebRTC、BATMAN-Adv、Meshrabiya 多跳方案不推荐用于首期**。
 
 ---
 
@@ -136,33 +135,29 @@ flowchart TB
 
 ```
 麦克风 → AudioRecord → Opus 编码 → 加密(ChaCha20-Poly1305)
-       → Mesh 包头 → UDP Socket → Wi-Fi Direct → 邻居节点
-       → 路由引擎判断：本地播放 / 继续转发
+       → UDP 包头 → UDP Socket → Wi-Fi Direct Group Owner
+       → UDP 广播/单播 → 局域网内所有节点
        → 解密 → Opus 解码 → AudioTrack → 耳机/扬声器
 ```
+
+> 说明：在星型拓扑下，Group Owner 作为局域网 AP，负责在同一子网内转发/广播 UDP 包；Client 之间不直接通信，均通过 Group Owner 中转。
 
 ### 4.3 部署拓扑
 
 ```
-**MVP 单跳场景（所有 Android 12+ 设备均可支持）：**
+**MVP 星型单跳场景（所有 Android 12+ 设备均可支持）：**
 
 ```
-[Node A] ←→ [Node B] ←→ [Node C]
-   GO          Client       Client
+       [Node A]
+      Group Owner
+       /       \
+ [Node B]     [Node C]
+  Client        Client
 ```
 
-A 作为 Group Owner，B、C 作为 Client，所有节点在同一 Wi-Fi Direct Group 内直连通信。
+A 作为 Group Owner（热点），B、C 作为 Client 接入同一 Wi-Fi Direct Group，所有节点在同一 IPv4 子网（192.168.49.x）内通信。
 
-**远期多跳场景（依赖 AP-STA 并发，需硬件支持）：**
-
-```
-[Node A] ←→ [Node B] ←→ [Node C] ←→ [Node D]
-   GO        Client/GO      Client/GO      Client
-```
-
-A 与 D 超出直连范围，B、C 同时作为 Client 与 Group Owner，
-自动转发语音包，实现多跳中继。该模式仅在实测支持并发的机型上启用。
-```
+> 多跳中继、链式拓扑、AP-STA 并发扩展已从 v1.0 需求范围移除。
 
 ---
 
@@ -176,8 +171,8 @@ A 与 D 超出直连范围，B、C 同时作为 Client 与 Group Owner，
 | ViewModel | `ui.screens.*ViewModel` | 业务状态管理、用户交互 | 已实现 |
 | Foreground Service | `service.*` | 保活、权限维持、引擎生命周期 | 已实现 |
 | Audio Engine | `audio.*` | 采集、播放、Opus 编解码 | 已实现；VAD / 软件 AEC 为远期优化 |
-| Mesh Link | `link.*` | Wi-Fi Direct 组管理、UDP 邻居发现、IPv4 地址适配 | 已实现；IPv6 link-local 为可选扩展 |
-| Routing Engine | `link.LinkManager`、`link.neighbor.NeighborTable` | 包转发、TTL/去重、邻居老化 | 已实现单跳广播；多跳转发为远期扩展 |
+| Mesh Link | `link.*` | Wi-Fi Direct 组管理、UDP 邻居发现、IPv4 地址适配 | 已实现 |
+| Routing Engine | `link.LinkManager`、`link.neighbor.NeighborTable` | 局域网内 UDP 广播/单播转发、邻居老化 | 已实现星型单跳转发 |
 | Signaling Engine | `link.signal.SignalingEngine` | 节点发现、心跳、会话管理 | 已实现 |
 | Location Engine | `link.location.*` | GPS 获取、相对方位/距离计算、位置广播 | 已实现；当前使用 `LocationManager` |
 | Crypto Engine | `security.*` | 密钥生成、交换、加解密 | **未实现**；MVP 为明文传输 |
@@ -199,20 +194,18 @@ A 与 D 超出直连范围，B、C 同时作为 Client 与 Group Owner，
   - 调用 `WifiP2pManager` 进行 discoverPeers / connect / createGroup
   - 监听 `WIFI_P2P_CONNECTION_CHANGED_ACTION`、`WIFI_P2P_THIS_DEVICE_CHANGED_ACTION`
 - **Group 策略**：
-  - **MVP**：单 Group Owner + 多 Client 的星型拓扑，所有节点在同一 Wi-Fi Direct Group 内直连。
-  - **远期**：若设备支持 **AP-STA 并发**，可扩展为链式/网状拓扑；不支持则保持单跳。
+  - **MVP**：单 Group Owner + 多 Client 的星型拓扑，所有节点在同一 Wi-Fi Direct Group 内通信。
 - **IP 地址**：
   - **默认使用 IPv4 私有地址（192.168.49.x）**，与 Android Wi-Fi Direct 默认 DHCP 分配保持一致。
-  - **保留 IPv6 link-local（fe80::/64）作为可选回退**，在分配了 IPv6 地址的机型上可用。
-- **Neighbor Table**：维护 `<NodeID, IPv4|IPv6, Role, RSSI, LastSeen>`
+- **Neighbor Table**：维护 `<NodeID, IPv4, Role, RSSI, LastSeen>`
 
 #### 5.2.3 Routing Engine
-- **MVP 策略：受控泛洪（Controlled Flooding）**
-  - 每个包携带：SourceID、SeqNo、TTL
-  - 节点记录已转发包的 `(SourceID, SeqNo)`，避免重复转发
-  - 每收到一个包：TTL--，若 TTL > 0 且非重复，则向除入接口外的所有邻居转发
-  - 目的地为本机则提交上层
-- **未来演进**：链路状态路由（Link-State），每个节点维护全局拓扑，按最短路径转发
+- **MVP 策略：星型局域网广播/单播**
+  - 所有节点在同一 IPv4 子网内；
+  - 语音/位置包默认通过 UDP 广播发送，Group Owner 在同一子网内转发；
+  - 节点记录已接收包的 `(SourceID, SeqNo)`，避免重复播放；
+  - 目的地为本机或广播则提交上层。
+- **未来演进**：若后续恢复多跳需求，再升级为受控泛洪或链路状态路由。
 
 #### 5.2.4 Signaling Engine
 - **节点发现**：周期性发送 HELLO 广播，携带 NodeID、公钥指纹、能力位
@@ -331,9 +324,9 @@ interface LocationEngine {
 ## 8. 非功能需求满足方案
 
 ### 8.1 性能
-- **低延迟**：20ms Opus 帧 + UDP + 受控泛洪，单跳目标 < 300ms
+- **低延迟**：20ms Opus 帧 + UDP + 局域网广播，目标 < 300ms
 - **低开销**：HELLO 5 秒一次，位置 5 秒一次，语音 VAD 静音抑制
-- **可扩展性**：受控泛洪在 2-10 节点场景下带宽可控；超过 10 节点建议升级链路状态路由
+- **可扩展性**：星型拓扑在 2-5 节点场景下带宽可控；受 Group Owner 热点最大连接数限制
 
 ### 8.2 可靠性
 - **后台保活**：`ForegroundService` + `WAKE_LOCK` + 电池白名单引导
@@ -351,7 +344,7 @@ interface LocationEngine {
 - 协议版本号便于后续演进
 
 ### 8.5 兼容性
-- **Android 12+ 为唯一目标平台**；MVP 为单跳直连，多跳 mesh 仅在有 AP-STA 并发能力的设备上启用
+- **Android 12+ 为唯一目标平台**；MVP 仅支持星型单跳，多跳 mesh 已从需求范围移除
 - 音频外设：有线耳机、蓝牙耳机（HFP/A2DP）均通过 AudioManager 路由
 
 ---
@@ -361,10 +354,10 @@ interface LocationEngine {
 | 风险 | 影响 | 缓解措施 |
 |------|------|----------|
 | Android Wi-Fi Direct API 不稳定 | 高 | 大量实机测试；参考 Meshrabiya 实现；提供手动组网入口 |
-| 部分 Android 12+ 机型硬件不支持 AP-STA 并发 | **高** | MVP 退化为单跳直连；启动时检测并发能力并提示用户；多跳作为远期扩展 |
+| 部分 Android 12+ 机型 Wi-Fi Direct 行为差异 | **高** | 建立兼容设备列表；重点测试三星、小米、Pixel、一加、华为/荣耀 |
 | 后台限制导致断连 | 高 | 前台服务 + 引导用户关闭电池优化 + 持续播放静音保持活性 |
 | 不同品牌手机 Wi-Fi Direct 行为差异 | 高 | 建立兼容设备列表；重点测试三星、小米、Pixel、一加、华为/荣耀 |
-| IPv6 链路本地地址兼容性 | **高** | 改为以 IPv4 私有地址为主，IPv6 link-local 仅作为可选回退 |
+| Group Owner 电量消耗过快 | **高** | UI 提示热点设备电量；支持手动切换 Group Owner；建议用户携带充电宝 |
 | 全双工多路语音回声/啸叫 | 中 | 使用耳机降低回声；软件 AEC 作为后续优化 |
 | 麦克风/蓝牙耳机路由异常 | 中 | 使用 AudioManager 监听设备变化并自动切换 |
 
@@ -373,34 +366,34 @@ interface LocationEngine {
 ## 10. 架构决策记录（ADR）
 
 ### ADR-001：使用 Wi-Fi Direct 作为唯一链路层
-- **决策**：以 Wi-Fi Direct 为唯一组网方式，不实现蓝牙组网。
-- **理由**：PRD 明确约束；Wi-Fi Direct 带宽更高、距离更远，更适合语音。
-- **风险**：部分 Android 12+ 机型硬件不支持 AP-STA 并发，多跳能力受限；启动时检测并提示用户。
+- **决策**：以 Wi-Fi Direct 为唯一组网方式，采用 Group Owner / Client 星型拓扑，不实现蓝牙组网。
+- **理由**：PRD 明确约束；Wi-Fi Direct 带宽更高、距离更远，更适合语音；星型拓扑避免对 AP-STA 并发的依赖。
+- **风险**：所有 Client 必须在 Group Owner 热点覆盖范围内；Group Owner 设备耗电较快。
 
-### ADR-002：MVP 使用受控泛洪路由
-- **决策**：MVP 采用受控泛洪实现多跳，而非链路状态或距离矢量协议。
-- **理由**：2-5 节点场景下实现简单、鲁棒；满足 PRD 验收标准。
-- **回退**：若节点数扩展到 10+ 或带宽不足，升级为链路状态路由。
+### ADR-002：MVP 使用局域网广播转发
+- **决策**：MVP 采用 UDP 局域网广播/单播在 Group Owner 与 Client 之间转发语音与位置包。
+- **理由**：星型单跳拓扑下无需复杂路由协议；实现简单、延迟低。
+- **回退**：若后续恢复多跳需求，再评估受控泛洪或链路状态路由。
 
 ### ADR-003：使用 Opus 语音编解码
 - **决策**：采用 Opus 16-24 kbps 编码。
-- **理由**：低码率、低延迟、抗丢包，适合 mesh 网络。
+- **理由**：低码率、低延迟、抗丢包，适合局域网语音传输。
 - **实现**：M5-T3-2 已将 Opus 方案替换为自编译 Xiph libopus v1.4 + JNI，封装为 `com.offgrid.app.audio.opus.OpusEncoder` / `OpusDecoder`。APK 同时打包 `arm64-v8a` 与 `armeabi-v7a` 的 `libopus_jni.so`，16 kHz/单声道/20 ms 帧、24 kbps 配置保持不变，预期端到端编解码延迟仍满足 < 200 ms 目标。
 - **历史**：M1-T4 曾临时使用 `com.github.martoreto:opuscodec:v1.2.1.2`（JitPack），因无 LICENSE 且缺少 arm64 原生库，v1.0 前已移除。详见 `docs/M5-T3_OPUS_REPLACEMENT.md`。
 
 ### ADR-004：使用 IPv4 私有地址作为主要传输地址
 - **决策**：节点间通信默认使用 Android Wi-Fi Direct 分配的 IPv4 私有地址（192.168.49.x），IPv6 link-local 仅作为可选回退。
 - **理由**：实测华为/荣耀等机型不为 P2P Client 接口分配 IPv6 地址；IPv4 私有地址在实测机型上可正常通信，且与 DHCP 分配一致。
-- **限制**：在存在多个独立 Wi-Fi Direct Group 的多跳场景下，不同 Group Owner 可能均为 192.168.49.1，此时需通过 NAT、端口映射或 IPv6 link-local 解决冲突。该问题在 MVP 单跳场景中不存在。
+- **限制**：同一时间只能存在一个 Group Owner；若需切换 Group Owner，需先断开现有 Group。该限制与 MVP 星型拓扑一致。
 
 ### ADR-005：使用 ChaCha20-Poly1305 加密
 - **决策**：语音与位置数据使用 ChaCha20-Poly1305 加密。
 - **理由**：性能优于 AES-GCM 在移动设备上；MIT 兼容库成熟。
 
-### ADR-006：Android 12+ 作为基线，AP-STA 并发作为扩展
-- **决策**：项目仅支持 Android 12+；MVP 以单跳直连为基线，多跳能力以设备的 AP-STA 并发能力为扩展前提。
-- **理由**：实测目标机型（一加 11、华为/荣耀）不支持 P2P-P2P 并发，无法在同一时刻同时作为 Group Owner 和 Client；为保障 MVP 可用性，必须先落地单跳直连。
-- **回退**：启动时检测并发能力；不支持的机型降级为单跳直连，并明确提示用户；支持并发的机型未来可解锁多跳功能。
+### ADR-006：Android 12+ 作为基线，星型单跳为唯一拓扑
+- **决策**：项目仅支持 Android 12+；MVP 及 v1.0 仅采用一台 Group Owner + 多台 Client 的星型单跳拓扑。
+- **理由**：实测目标机型不支持 P2P-P2P 并发，多跳 mesh 在主流 Android 手机上不可靠；星型单跳可落地性最高。
+- **回退**：多跳中继、去中心化 mesh 明确从 v1.0 范围移除，不作为扩展前提。
 
 ---
 
@@ -428,16 +421,15 @@ interface LocationEngine {
 | 前台服务与后台保活 | `service/VoiceService.kt`、`service/keepalive/KeepAliveHelper.kt` | ✅ 已实现 |
 | 音频路由与蓝牙按键 | `audio/router/AudioRouter.kt`、`audio/media/MediaButtonHandler.kt` | ✅ 已实现 |
 | 省电模式 | `power/PowerSavingConfig.kt`、`audio/AudioEngine.kt`、`link/location/LocationEngine.kt` | ❌ 已从产品需求中删除，代码保留但不再维护 |
-| 多跳路由转发 | — | ⏳ 未实现（受 AP-STA 并发限制，远期扩展） |
+| 多跳路由转发 | — | ❌ 已从产品需求中删除，代码保留但不再维护 |
 | 语音加密 | — | ⏳ 未实现 |
 | 持久化数据 / Room | — | ⏳ 未实现（当前使用 SharedPreferences） |
 
 ## 13. 下一步工作
 
-1. **M4-T8 Beta 测试**：在更多机型与场景下验证稳定性；
-2. **M5 户外实测**：收集距离、延迟、续航、稳定性数据；
-3. **远期扩展**：在支持 AP-STA 并发的机型上实现多跳中继；
-4. **可选优化**：VAD 静音抑制、软件 AEC、语音加密。
+1. **M4-T8 Beta 测试**：在更多机型与场景下验证星型组网稳定性；
+2. **M5 发布与推广**：v1.0 已发布，收集社区反馈；
+3. **可选优化**：VAD 静音抑制、软件 AEC、语音加密、Group Owner 切换引导。
 
 ---
 
