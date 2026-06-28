@@ -130,7 +130,7 @@
 | M5-T2 | 户外实测 | QA / PM / Android Dev | 已取消 | M5-T1 | 收集语音距离/延迟/续航/稳定性数据；位置共享功能保留，但不作为户外实测必测项 | 按用户决策，户外测试不再执行 |
 | **M5-T3-1** | **Opus 依赖许可合规审查** | **`pro-general-pm`** | **已完成** | **M4-T8** | **输出 `docs/M5-T3_LICENSE_COMPLIANCE.md`** | **报告已完成，建议触发 M5-T3-2 替换** |
 | **M5-T3-2** | **arm64 Opus 原生库替换评估与实施** | **`pro-android-app` / `pro-c-cpp`** | **已完成** | **M5-T3-1** | **输出 `docs/M5-T3_OPUS_REPLACEMENT.md`，真机回归通过** | **替换实施完成，回归报告 `docs/M5-T3_REGRESSION_REPORT.md`** |
-| M5-T4 | 发布 v1.0 Release | PM / Android Dev | 进行中 | M5-T3-1, M5-T3-2 | GitHub Release + Tag | Tag `v1.0.0` 已推送；GitHub Release 页面与 APK 上传需手动完成（缺少 API Token） |
+| M5-T4 | 发布 v1.0 Release | PM / Android Dev | 等待 review | M5-T3-1, M5-T3-2 | GitHub Release + Tag + APK | Tag `v1.0.0` 已推送；GitHub Release 页面与 APK 上传待完成（缺少 API Token）；v1.0 范围已冻结 |
 | M5-T5 | 发布推广 | PM | 待办池 | M5-T4 | 发布到合适的技术社区/论坛 | |
 | M5-T6 | 收集首批用户反馈，建立 Issue 模板 | PM | 待办池 | M5-T4 | GitHub Issue 模板、讨论区开启 | |
 
