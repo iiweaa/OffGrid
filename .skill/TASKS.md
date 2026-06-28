@@ -16,7 +16,7 @@
 | **M4-T5-VERIFY** | **M4-T5 真机网络验证** | **`pro-android-system-test`** | **已完成** | **2026-07-07** | **M4-T5, M4-T5-FIX** | **一加/华为 GO/Client 两种模式通话均正常，故障提示正确** | TC-1/TC-2/TC-3 全部通过，无 ANR/Crash；见 `docs/M4-T5_VERIFICATION.md` |
 | M4-T6 | 省电模式 | `pro-android-app` | 等待 review | 2026-07-07 | M4-T1 | 省电模式耗电下降 ≥ 20% | 代码已 push（`81cce23`），功耗验证拆分为 M4-T6-VERIFY |
 | **M4-T6-VERIFY** | **M4-T6 真机功耗验证** | **`pro-android-system-test`** | **已跳过** | **2026-07-09** | **M4-T6** | **15 分钟普通/省电耗电对比，省电 ≥ 20%** | 按用户决策暂不测试，保留脚本与方案；M4-T6 代码仍待 review |
-| **M4-T7** | **完善开发文档** | **`pro-android-app`** | **本周进行** | **2026-07-08** | **-** | **新贡献者可按 BUILD.md / DEVELOPER_GUIDE.md 独立构建** | 更新 BUILD.md、README.md、ARCHITECTURE.md 以匹配当前代码；技术审阅：`pro-android-app`；最终验收：`pro-general-pm` |
+| **M4-T7** | **完善开发文档** | **`pro-android-app`** | **已完成** | **2026-07-08** | **-** | **新贡献者可按 BUILD.md / DEVELOPER_GUIDE.md 独立构建** | BUILD.md / README.md / DEVELOPER_GUIDE.md / ARCHITECTURE.md 已同步当前代码；`./gradlew clean build` 通过 |
 
 ---
 
